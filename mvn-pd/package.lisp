@@ -2,7 +2,7 @@
 
 (defpackage :mvn-pd
   (:use :cl)
-  (:export :hello-world
+  (:export :find-elems
 	   :str2keyword
-	   :eq-keyword-str))
+	   :eq-keyword))
 

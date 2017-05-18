@@ -9,6 +9,5 @@
   :serial t
   :components ((:file "package")
                (:file "unit-tests")
-	       (:file "integration-tests")
-	       ))
+	       (:file "integration-tests")))
 

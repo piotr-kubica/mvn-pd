@@ -18,14 +18,17 @@
 	     (find-el (lst)
 	       (mapc (lambda (e)
 		       (when (notemptylst e)
-					; car for element without attributes
 			 (if (and
+					; equal to atom element
 			      (or (eq-to-elem (car e))
-					; caar for element with attributes
+					; element with attributes is a list
 				  (and (notemptylst (car e))
+					; equal to first of list
 				       (eq-to-elem (caar e))))
-					; second element exisits
-			      (not (null (cadr e))))
+					; second element (value) exisits...
+			      (and (not (null (cadr e)))
+					; ...and is not a list
+				  (not (listp (cadr e)))))
 					; add to result-collection
 			     (push (cadr e) res)
 					; otherwise search deeper
@@ -34,24 +37,3 @@
       (when (notemptylst lst)
 	(find-el lst)))
     res))
-
-
-
-;; (find-elems '(a (b c) (d e)) 'b #'equal)
-
-;; (C)
-;; MVN-PD-TEST> (find-elems '(a (b c) (d e (b f))) 'b #'equal)
-			 
-;; (F C)
-;; MVN-PD-TEST> (find-elems '(a (b) (b c) (d e (b f))) 'b #'equal)
-			 
-;; (F C)
-;; MVN-PD-TEST> (find-elems '(a () (b) (b c) (d e (b f))) 'b #'equal)
-			 
-;; (F C)
-;; MVN-PD-TEST> (find-elems '(a () (b) ((b g h) c) (d e (b f))) 'b #'equal)
-			 
-;; (F C)
-;; MVN-PD-TEST> 
-
-

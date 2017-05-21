@@ -2,7 +2,7 @@
 
 (defpackage :mvn-pd
   (:use :cl)
-  (:export :find-elems
+  (:export :find-lxml-elems
 	   :str2keyword
 	   :eq-keyword))
 

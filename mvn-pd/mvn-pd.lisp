@@ -9,7 +9,7 @@
   ;; check equalisy but ignore keyword case-sensitivity
   (eq keyword1 keyword2))
 
-(defun find-xml-elems (lst elem eqfun)
+(defun find-lxml-elems (lst elem eqfun)
   (let ((res (list)))
     (labels ((notemptylst (x)
 	       (and (not (null x)) (listp x)))
@@ -29,12 +29,13 @@
 					; add to result-collection
 			     (push (cadr e) res)
 					; otherwise search deeper
-			     (find-el e)
-			     )))
+			     (find-el e))))
 		     lst)))
       (when (notemptylst lst)
 	(find-el lst)))
     res))
+
+
 
 ;; (find-elems '(a (b c) (d e)) 'b #'equal)
 

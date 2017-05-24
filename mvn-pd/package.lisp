@@ -4,5 +4,6 @@
   (:use :cl)
   (:export :find-lxml-elems
 	   :str2keyword
-	   :eq-keyword))
+	   :eq-keyword
+	   :to-path))
 

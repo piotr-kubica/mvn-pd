@@ -37,3 +37,20 @@
       (when (notemptylst lst)
 	(find-el lst)))
     res))
+
+;; TODO find-lxml-elems-text
+;;  should match elements by element name and element value
+
+;; TODO readXmlToLxml
+
+(defun build-pom-path (modulepaths)
+  (mapcar (lambda (p)
+	    (make-pathname
+	     :directory `(:relative ,p)
+	     :name "pom"
+	     :type "xml"))
+	  modulepaths))
+
+;; TODO test
+;; (to-path '("../temp" "../a"))
+

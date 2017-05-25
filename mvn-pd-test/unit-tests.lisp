@@ -66,5 +66,6 @@
   (is (equallst '(d)   (find-lxml-elems '((a (b d))) 'b #'equal)))
   (is (equallst '(c d) (find-lxml-elems '((b c) (a (b d))) 'b #'equal)))
   (is (equallst '(c)   (find-lxml-elems '(((b) c)) 'b #'equal)))
-  (is (equallst '(c)   (find-lxml-elems '(((b d f) c)) 'b #'equal))))
+  (is (equallst '(c)   (find-lxml-elems '(((b d f) c)) 'b #'equal)))
+  (is (equallst '(c)   (find-lxml-elems '(a b (b c) d)) 'b #'equal))))
   

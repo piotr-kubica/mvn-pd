@@ -13,6 +13,10 @@
   (eq keyword1 keyword2))
 
 (defun find-lxml-elems (lst elem eqfun)
+  (when (or (null lst)
+	    (null elem)
+	    (not (functionp eqfun)))
+    nil)
   (let ((res (list)))
     (labels ((notemptylst (x)
 	       (and (not (null x)) (listp x)))
@@ -22,7 +26,7 @@
 	       (if (notemptylst lst) ; check for end of list
 		   (let ((e (car lst)))
 		     (if (notemptylst e)
-			; first elem is a list, means nested elem with content or attr
+			; first elem is a list, means nested elem with content or attrg
 			 (progn
 			   (find-el (cdr lst))
 			   (if (or  (is-eq (car e))
@@ -34,7 +38,8 @@
 			     (push (cdr lst) res)
 			     (find-el (cdr lst)))))))) ; continue search
       (find-el lst))
-    res)) 
+    (when (not (equal res '(nil)))
+	res))) 
 
 
 ;; TODO use xml event-based parser in next version ?

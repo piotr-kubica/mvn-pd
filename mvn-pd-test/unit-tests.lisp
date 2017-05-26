@@ -84,4 +84,8 @@
 ;; ((C))
 ;; MVN-PD-TEST> (find-lxml-elems '(a (((b)) c) d) 'b #'equal)
 ;; NIL
+;; MVN-PD-TEST>
+
+;; (find-lxml-elems (find-lxml-elems '(a (b c) (d e) (b b f g) h (i j (b l) (m n))) 'b #'equal) 'b #'equal)
+;; ((F G))
 ;; MVN-PD-TEST> 

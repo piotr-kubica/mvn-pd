@@ -69,4 +69,19 @@
   (is (equallst '(c)   (find-lxml-elems '(((b) c)) 'b #'equal)))
   (is (equallst '(c)   (find-lxml-elems '(((b d f) c)) 'b #'equal)))
   (is (equallst '(c)   (find-lxml-elems '(a b (b c) d) 'b #'equal))))
-  
+
+;; (find-lxml-elems '(a (b c) (d e) (b b f g) h (i j (b l) (m n))) 'b #'equal) 
+  ;; ((C) (B F G) (L))
+;; (find-lxml-elems '(b c) 'b #'equal)
+;; ((C))
+;; MVN-PD-TEST> (find-lxml-elems '((b) b c) 'b #'equal)
+;; (NIL (C))
+;; MVN-PD-TEST> (find-lxml-elems '(a (b c) c) 'b #'equal)
+;; ((C))
+;; MVN-PD-TEST> (find-lxml-elems '(a ((b) c) c) 'b #'equal)
+;; ((C))
+;; MVN-PD-TEST> (find-lxml-elems '(a ((b) c) d) 'b #'equal)
+;; ((C))
+;; MVN-PD-TEST> (find-lxml-elems '(a (((b)) c) d) 'b #'equal)
+;; NIL
+;; MVN-PD-TEST> 

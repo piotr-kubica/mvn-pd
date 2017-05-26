@@ -16,69 +16,45 @@
   (let ((res (list)))
     (labels ((notemptylst (x)
 	       (and (not (null x)) (listp x)))
-	     (eq-to-elem (x)
-	       (funcall eqfun x elem))
+
+	     (is-eq (x)
+	       (funcall eqfun elem x))
+	     
+	     ;; (is-elem (e)
+	     ;;   (or (is-eq e) ; first list elem is always an xml-element
+	     ;; 	   (and (notemptylst e) ; element with attributes is a list
+	     ;; 		(is-eq (car e)))))
+	     
 	     (find-el (lst)
-	       (mapc (lambda (e)
-		       (when (notemptylst e)
-			 (if (and
-					; equal to element
-			      (or (eq-to-elem (car e))
-					; element with attributes is a list
-				  (and (notemptylst (car e))
-					; equal to first of list
-				       (eq-to-elem (caar e))))
-					; second element (value) exisits...
-			      (and (not (null (cadr e)))
-					; ...and is not a list
-				   ;; TODO: and is not a symbol
-				   (not (listp (cadr e)))))
-			     
-					; add to result collection
-			     (push (cadr e) res)
-					; otherwise search deeper
-			     (find-el e))))
-		     lst)))
-      (when (notemptylst lst)
-	(find-el lst)))
+	       (if (notemptylst lst) ; check for end of list
+		   (let ((e (car lst)))
+		     (if (notemptylst e)
+					; first elem is a list, means nested elem with content or attr
+			 (if (notemptylst (car e))
+					; nested elem with attr
+			     (if (is-eq (caar e))
+				 (progn
+				   (push (cdr e) res)
+				   (find-el (cdr lst)))
+				 (progn
+				   (find-el (cdr e))
+				   (find-el (cdr lst))))
+					; nested elem with content
+			     (if (is-eq (car e))
+				 (progn
+				   (push (cdr e) res)
+				   (find-el (cdr lst)))
+				 (progn
+				   (find-el (cdr e))
+				   (find-el (cdr lst)))))
+			 (if (is-eq e) ; not a list, means element without attr and content
+			     (push (cdr lst) res)
+			     (find-el (cdr lst))))))))
+      (find-el lst))
     res))
 
-;; TODO handle nested elements like elem1 > elem2 > elem3.
-;; Passed as list
-;; TODO check performance against xpath
-(defun find-lxml-nested-elems (lst elems)
-  (let ((res (list)))
-    (labels ((notemptylst (x)
-	       (and (not (null x)) (listp x)))
-	     ;; first list elem is always an xml-element
-	     (is-elem (e x)
-	       (or (equal (car e) x)
-		   ;; element with attributes is a list
-		   (and (notemptylst (car e))
-			(equal (caar e) x))))
-	     (is-content (e)
-	       ;; replace with stringp ?
-	       (not (or
-		     (null (cadr e))
-		     (listp (cadr e))
-		     (symbolp (cadr e)))))
-	     (find-el (lst x xrest)
-	       (let ((e (car lst)))
-		       (if (is-elem e x)
-			   (cond ((notemptylst xrest)
-				  (find-el (cdr e) (car xrest) (cdr xrest)))
-				 ((is-content e)
-				  (push (cadr e) res)))
-			   (when (notemptylst e)
-			     (find-el (cdr e) x xrest))))))
-	     (when (notemptylst lst)
-	       (find-el lst (car elems) (cdr elems))))
-      res))
 
-;; TODO find-lxml-elems-text
-;;  should match elements by element name and element value
-;; run find-lxml-elems then filter by value
-
+;; TODO use xml event-based parser in next version
 
 ;; TODO readXmlToLxml
 
@@ -89,6 +65,7 @@
 	     :name "pom"
 	     :type "xml"))
 	  modulepaths))
+
 
 ;; TODO test
 ;; (to-path '("../temp" "../a"))

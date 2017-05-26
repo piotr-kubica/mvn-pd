@@ -60,12 +60,13 @@
 
 (test find-elems-test
   "find elements in list"
-  (is (equallst '(c)   (find-lxml-elems '(a (b c)) 'b #'equal) ))
-  (is (equallst nil   (find-lxml-elems '(a (b (c))) 'b #'equal) ))
+  (is (equallst '(c)   (find-lxml-elems '(b c) 'b #'equal)))
+  (is (equallst '(c)   (find-lxml-elems '(a (b c)) 'b #'equal)))
+  (is (equallst '((c)) (find-lxml-elems '(a (b (c))) 'b #'equal)))
   (is (equallst '(c)   (find-lxml-elems '((b c) a) 'b #'equal) ))
   (is (equallst '(d)   (find-lxml-elems '((a (b d))) 'b #'equal)))
   (is (equallst '(c d) (find-lxml-elems '((b c) (a (b d))) 'b #'equal)))
   (is (equallst '(c)   (find-lxml-elems '(((b) c)) 'b #'equal)))
   (is (equallst '(c)   (find-lxml-elems '(((b d f) c)) 'b #'equal)))
-  (is (equallst '(c)   (find-lxml-elems '(a b (b c) d)) 'b #'equal))))
+  (is (equallst '(c)   (find-lxml-elems '(a b (b c) d) 'b #'equal))))
   

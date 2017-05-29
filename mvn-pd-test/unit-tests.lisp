@@ -17,41 +17,26 @@
 
 (test find-elems-test
   "find elements in list"
-  (is (equal nil  (find-lxml-elems '() 'x #'equal)))
-  (is (equal nil  (find-lxml-elems '(a b c) 'x #'equal)))
-  (is (equal '((c))  (find-lxml-elems '(b c) 'b #'equal)))
-  (is (equal '((c d))  (find-lxml-elems '(b c d) 'b #'equal)))
-  (is (equal '((c c))  (find-lxml-elems '(b c c) 'b #'equal)))
-  (is (equal '((c))  (find-lxml-elems '((b) c) 'b #'equal)))
-  (is (equal '((c d))  (find-lxml-elems '((b) c d) 'b #'equal)))
-  (is (equal 'nil  (find-lxml-elems '(((b)) c d) 'b #'equal)))
-  (is (equal 'nil  (find-lxml-elems '(a (b) c) 'b #'equal)))
-  (is (equal 'nil  (find-lxml-elems '(a ((b)) c) 'b #'equal)))
-  (is (equal '((c))  (find-lxml-elems '(a (b c) d) 'b #'equal)))
-  (is (equal '((c))  (find-lxml-elems '(a ((b) c) d) 'b #'equal)))
-  (is (equal '((c (d)))  (find-lxml-elems '(a ((b) c (d)) e) 'b #'equal)))
-  (is (equal '((c) (d) (e f))  (find-lxml-elems '(a (b c) (b d) ((b) e f)) 'b #'equal)))
-  (is (equal '((c) (d) (e f))  (find-lxml-elems '(a (b c) (b d) ((b) e f)) 'b #'equal)))
-  (is (equal '((c d))  (find-lxml-elems '(a (e (f (b c d)))) 'b #'equal))))
+  (is (equal nil  (find-lxml-elems '() 'x)))
+  (is (equal nil  (find-lxml-elems '(a b c) 'x )))
+  (is (equal '((c))  (find-lxml-elems '(b c) 'b )))
+  (is (equal '((c d))  (find-lxml-elems '(b c d) 'b )))
+  (is (equal '((c c))  (find-lxml-elems '(b c c) 'b )))
+  (is (equal 'nil  (find-lxml-elems '((b) c) 'b ))) ; first elem is nested but shouldnt
+  (is (equal 'nil  (find-lxml-elems '((b) c d) 'b ))) ; first elem is nested but shouldnt
+  (is (equal 'nil  (find-lxml-elems '(((b)) c d) 'b ))) ; first elem is nested but shouldnt
+  (is (equal 'nil  (find-lxml-elems '(a (b) c) 'b )))
+  (is (equal 'nil  (find-lxml-elems '(a ((b)) c) 'b )))
+  (is (equal '((c))  (find-lxml-elems '(a (b c) d) 'b )))
+  (is (equal '((c))  (find-lxml-elems '(a ((b) c) d) 'b )))
+  (is (equal '((c (d)))  (find-lxml-elems '(a ((b) c (d)) e) 'b )))
+  (is (equal '((c) (d) (e f))  (find-lxml-elems '(a (b c) (b d) ((b) e f)) 'b )))
+  (is (equal '((c) (d) (e f))  (find-lxml-elems '(a (b c) (b d) ((b) e f)) 'b )))
+  (is (equal '((c d))  (find-lxml-elems '(a (e (f (b c d)))) 'b )))
+  (is (equal '((c d))  (find-lxml-elems '(a (e (f (b c d)))) 'b )))
+  (is (equal '((d)) (find-lxml-elems (find-lxml-elems '(a (b c d)) 'b ) 'c )))
+  (is (equal '((c (c))) (find-lxml-elems (find-lxml-elems '(a (b c c (c))) 'b ) 'c ))))
 
 
-      
-;; (find-lxml-elems '(a (b c) (d e) (b b f g) h (i j (b l) (m n))) 'b #'equal) 
-  ;; ((C) (B F G) (L))
-;; (find-lxml-elems '(b c) 'b #'equal)
-;; ((C))
-;; MVN-PD-TEST> (find-lxml-elems '((b) b c) 'b #'equal)
-;; (NIL (C))
-;; MVN-PD-TEST> (find-lxml-elems '(a (b c) c) 'b #'equal)
-;; ((C))
-;; MVN-PD-TEST> (find-lxml-elems '(a ((b) c) c) 'b #'equal)
-;; ((C))
-;; MVN-PD-TEST> (find-lxml-elems '(a ((b) c) d) 'b #'equal)
-;; ((C))
-;; MVN-PD-TEST> (find-lxml-elems '(a (((b)) c) d) 'b #'equal)
-;; NIL
-;; MVN-PD-TEST>
-
-;; (find-lxml-elems (find-lxml-elems '(a (b c) (d e) (b b f g) h (i j (b l) (m n))) 'b #'equal) 'b #'equal)
-;; ((F G))
-;; MVN-PD-TEST> 
+;; TODO nested elems real data test
+;; <modules> <module></module> <module></module> </modules>

@@ -12,9 +12,9 @@
   ;; check equalisy but ignore keyword case-sensitivity
   (eq keyword1 keyword2))
 
-;; O(n^2)
-(defun find-lxml-elems (lst elem eqfun)
-  (when (or (null lst)
+;; O(2^n) runtime - use xml event-based parser in next version
+(defun find-lxml-elems (lxml elem &optional (eqfun #'equal))
+  (when (or (null lxml)
 	    (null elem)
 	    (not (functionp eqfun)))
     nil)
@@ -34,42 +34,26 @@
 				    (and (notemptylst (car e)) ; elem with attr
 					 (is-eq (caar e))))
 			       (push (cdr e) res)
-			       (find-el (cdr e)))) ; continue search in nested list
+			       (find-el (cdr e)))) ; continue search nested elem list
 			 (if (is-eq e) ; not a list, means element without attr and content
 			     (push (cdr lst) res)
 			     (find-el (cdr lst)))))))) ; continue search
-      (find-el (list lst)))
+      (find-el lxml))
     (when (not (equal res '(nil)))
 	res)))
 
 
-;;  Failure Details:
-;;  --------------------------------
-;;  FIND-ELEMS-TEST [find elements in list]: 
-;; (FIND-LXML-ELEMS '((B) C) 'B #'EQUAL)
-;;  evaluated to 
-;; NIL
-;;  which is not 
-;; EQUAL
-;;  to 
-;; ((C))
-;;  --------------------------------
-;;  FIND-ELEMS-TEST [find elements in list]: 
-;; (FIND-LXML-ELEMS '((B) C D) 'B #'EQUAL)
-;;  evaluated to 
-;; NIL
-;;  which is not 
-;; EQUAL
-;;  to 
-;; ((C D))
+;; TODO test
+(defun find-lxml-nested-elems (lxml elst &optional (eqfun #'equal))
+  (labels ((find-lxml (el)
+	     (if (cdr el)
+		 (find-lxml-elems (find-lxml (cdr el)) (car el) eqfun)
+		 (find-lxml-elems lxml (car el) eqfun))))
+    (find-lxml (reverse elst))))
 
 
 
-
-;; TODO use xml event-based parser in next version ?
-
-;; TODO readXmlToLxml
-
+;; TODO test
 (defun build-pom-path (modulepaths)
   (mapcar (lambda (p)
 	    (make-pathname
@@ -78,10 +62,10 @@
 	     :type "xml"))
 	  modulepaths))
 
+;; TODO readXmlToLxml
 
 ;; TODO test
 ;; (to-path '("../temp" "../a"))
 
 ;; obtain-module-name
-;; (pathname-directory (parse-namestring "/foo/bar/baz.lisp"))
-
+;; (file-namestring "../foo/bar/baz") ; <- OK

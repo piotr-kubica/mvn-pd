@@ -26,9 +26,6 @@
 	     (find-el (lst)
 	       (if (notemptylst lst) ; check for end of list
 		   (let ((e (car lst)))
-		     ;; (break "lst: ~a" lst)
-		     ;; (break "nempty lst: ~a" (notemptylst lst) )
-		     ;; (break "e: ~a" e)
 		     (if (notemptylst e)
 			; first elem is a list, means nested elem with content or attrg
 			 (progn
@@ -38,16 +35,12 @@
 					 (is-eq (caar e))))
 			       (push (cdr e) res)
 			       (find-el (cdr e)))) ; continue search in nested list
-			 (progn
-			   ;; (break "e: ~a" e)
-			   ;; (break "is-eq e: ~a" (is-eq e))
-			   ;; (break "cdr lst: ~a" (cdr lst))
-				(if (is-eq e) ; not a list, means element without attr and content
-				    (push (cdr lst) res)
-				    (find-el (cdr lst))))))))) ; continue search
-      (find-el lst))
+			 (if (is-eq e) ; not a list, means element without attr and content
+			     (push (cdr lst) res)
+			     (find-el (cdr lst)))))))) ; continue search
+      (find-el (list lst)))
     (when (not (equal res '(nil)))
-	res))) 
+	res)))
 
 
 ;;  Failure Details:

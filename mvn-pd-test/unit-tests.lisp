@@ -2,18 +2,6 @@
 
 (in-package :mvn-pd-test)
 
-(test equallst-test
-  (is-true (equallst '() '()))
-  (is-true (equallst '((a)) '((a))))
-  (is-true (equallst '((a)) '((A))))
-  (is-true (equallst '(a) '(a)))
-  (is-true (equallst '(a a) '(a a)))
-  (is-true (equallst '(a a b) '(a b a)))
-  (is-false (equallst '(a a b) '(a b b)))
-  (is-false (equallst '(a) '(b)))
-  (is-false (equallst '(a) '()))
-  (is-false (equallst '((a b)) '((b a))))) ;; does not work for nested lists
-
 (test str2keyword-test
   "str2keyword coerce string to keyword"
   (is (eq :|test| (str2keyword "test")))

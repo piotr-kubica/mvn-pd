@@ -14,41 +14,49 @@
 
 ;; O(2^n) runtime - use xml event-based parser in next version
 (defun find-lxml-elems (lxml elem &optional (eqfun #'equal))
-  (when (or (null lxml)
-	    (null elem)
-	    (not (functionp eqfun)))
-    nil)
-  (let ((res (list)))
-    (labels ((notemptylst (x)
-	       (and (not (null x)) (listp x)))
-	     (is-eq (x)
-	       (funcall eqfun elem x))
-	     (find-el (lst)
-	       (if (notemptylst lst) ; check for end of list
-		   (let ((e (car lst)))
-		     (if (notemptylst e)
-			; first elem is a list, means nested elem with content or attrg
-			 (progn
-			   (find-el (cdr lst))
-			   (if (or  (is-eq (car e))
-				    (and (notemptylst (car e)) ; elem with attr
-					 (is-eq (caar e))))
-			       (push (cdr e) res)
-			       (find-el (cdr e)))) ; continue search nested elem list
-			 (if (is-eq e) ; not a list, means element without attr and content
-			     (push (cdr lst) res)
-			     (find-el (cdr lst)))))))) ; continue search
-      (find-el lxml))
-    (when (not (equal res '(nil)))
-	res)))
+  (when (not (or (null lxml)
+		 (null elem)
+		 (not (listp lxml))
+		 (listp (car lxml))))
+    
+    (let ((res (list)))
+      (labels ((notemptylst (x)
+		 (and (not (null x)) (listp x)))
+	       (is-eq (x)
+		 (funcall eqfun elem x))
+	       (find-el (lst)
+		 (if (notemptylst lst) ; check for end of list
+		     (let ((e (car lst)))
+		       (if (notemptylst e)
+					; first elem is a list, means
+					; nested elem with content or attrg
+			   (progn
+			     (find-el (cdr lst))
+			     (if (or (and (is-eq (car e))
+					  (not (null (cdr e)))) ; single nested elems are not valid elems
+				     (and (notemptylst (car e)) ; elem with attr
+					  (is-eq (caar e))
+					  (not (null (cdar e))))) ; single nested elems are not valid elems
+				 (push e res)
+				 (find-el (cdr e)))) ; continue search nested elem list
+			   (if (is-eq e) ; not a list, means element without attr and content
+			       (push lst res)
+			       (find-el (cdr lst)))))))) ; continue search
+	(find-el lxml))
+      (when (not (equal res '(nil)))
+	res))))
 
 
 ;; TODO test
 (defun find-lxml-nested-elems (lxml elst &optional (eqfun #'equal))
-  (labels ((find-lxml (el)
+  (labels ((find-elst (r el)
 	     (if (cdr el)
-		 (find-lxml-elems (find-lxml (cdr el)) (car el) eqfun)
-		 (find-lxml-elems lxml (car el) eqfun))))
+		 (car (find-lxml-elems (find-elst r (cdr el)) (car el) eqfun))
+		 (car (find-lxml-elems r (car el) eqfun))))
+	   (find-lxml (el)
+	     (mapcar (lambda (r)
+		       (find-elst r el))
+		     lxml)))
     (find-lxml (reverse elst))))
 
 

@@ -34,51 +34,11 @@
   (is (equal '((b c) (b d)) (find-lxml-elems '(a (b c) (b d) ((b) e f)) 'b )))) ; single nested elems are not valid elems
 
 (test find-nested-elems-test
-  (is (equal (find-lxml-elems (find-lxml-elems '(a b c d) 'b ) 'c )
-	     (find-lxml-nested-elems '(a b c d) '(b c))))
-  (is (equal '((d)) (find-lxml-nested-elems '(a b c d) '(b c)))))
-
-
-;; (find-lxml-nested-elems '((b c d)) '(c) )
-;; (((C D)))
-;; MVN-PD-TEST> (find-lxml-nested-elems '(a b c d) '(b c))
-;; (NIL NIL NIL NIL)
-;; MVN-PD-TEST> (find-lxml-nested-elems '(a b c d) '(b))
-;; (NIL NIL NIL NIL)
-;; MVN-PD-TEST> (find-lxml-nested-elems '(a b c d) '(c))
-;; (NIL NIL NIL NIL)
-;; MVN-PD-TEST> (find-lxml-nested-elems '((a b c d)) '(c))
-;; (((C D)))
-;; MVN-PD-TEST> (find-lxml-nested-elems '((a b c d)) '(b c))
-;; (NIL)
-;; MVN-PD-TEST> (find-lxml-nested-elems '((a b c d)) '(b))
-;; (((B C D)))
-;; MVN-PD-TEST> (find-lxml-nested-elems '((a b c d) (a b b)) '(b))
-;; (((B C D)) ((B B)))
-
-
-;; ((B C D) (B B))
-;; MVN-PD-TEST> (find-lxml-nested-elems '((a b c d)) '(b c))
-;; (((C D)))
-;; MVN-PD-TEST> (find-lxml-nested-elems '((a b c d e)) '(b c d))
-;; (NIL)
-;; ; compiling (DEFUN FIND-LXML-NESTED-ELEMS ...)
-;; MVN-PD-TEST> (find-lxml-nested-elems '((a b c d e)) '(b c d))
-
-;; (find-lxml-nested-elems '((a b c d e f) (a (b c d e f))) '(b c d e))
-;; ((E F) (E F))
-
-;; ((D E))
-;; MVN-PD-TEST> (find-lxml-nested-elems '((a b c d e f)) '(b c d e))
-;; ((E F))
-;; MVN-PD-TEST> (find-lxml-nested-elems '((a b c d e f) (a b c d e f)) '(b c d e))
-;; ((E F) (E F))
-;; MVN-PD-TEST> 
-
-
-  ;; (is (equal '((b c d))  (find-lxml-elems '(a (e (f (b c d)))) 'b )))
-  ;; (is (equal '((d)) (find-lxml-elems (find-lxml-elems '(a (b c d)) 'b ) 'c )))
-  ;; (is (equal '((c (c))) (find-lxml-elems (find-lxml-elems '(a (b c c (c))) 'b ) 'c )))
-  ;; (is (equal '((d)) (find-lxml-elems (find-lxml-elems '(a b (c d)) 'b ) 'c )))
-  ;; (is (equal '((d)) (find-lxml-elems (find-lxml-elems '(a b c d) 'b ) 'c ))))
+  (is (equal '(()) (find-lxml-nested-elems '(()) '() )))
+  (is (equal '(()) (find-lxml-nested-elems '(()) '(a) )))
+  (is (equal '(()) (find-lxml-nested-elems '((a)) '() )))
+  (is (equal '((a)) (find-lxml-nested-elems '((a)) '(a) )))
+  (is (equal '((b c)) (find-lxml-nested-elems '((a b c)) '(b) )))
+  (is (equal '((e f) (e f)) (find-lxml-nested-elems '((a b c d e f) (a (b c d e f))) '(b c d e) )))
+  (is (equal '((e f) (e)) (find-lxml-nested-elems '((a b c d e f) (a (b c (d e) f))) '(b c d e) ))))
 

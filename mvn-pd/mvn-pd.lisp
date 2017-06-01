@@ -59,6 +59,10 @@
 		     lxml)))
     (find-lxml (reverse elst))))
 
+(defun get-lxml-values (reslst)
+  (when (not (null (reslst)))
+    ;; TODO 
+    ))
 
 
 ;; TODO test

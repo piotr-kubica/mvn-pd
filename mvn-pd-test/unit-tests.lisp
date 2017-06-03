@@ -28,7 +28,7 @@
   (is (equal 'nil  (find-lxml-elems '(a ((b)) c) 'b ))) ; single nested elems are not valid elems
   (is (equal '((b c))  (find-lxml-elems '(a (b c) d) 'b )))
   (is (equal 'nil  (find-lxml-elems '(a ((b) c) d) 'b ))) ; single nested elems are not valid elems
-  (is (equal '(((b b) c))  (find-lxml-elems '(a ((b b) c) d) 'b )))
+  (is (equal '(((b t) c))  (find-lxml-elems '(a ((b t) c) d) 'b ))) ; elem b  with attribute t
   (is (equal 'nil  (find-lxml-elems '(a ((b) c (d)) e) 'b ))) ; single nested elems are not valid elems
   (is (equal '((b c) (b d) (b e f))  (find-lxml-elems '(a (b c) (b d) (b e f)) 'b )))
   (is (equal '((b c) (b d)) (find-lxml-elems '(a (b c) (b d) ((b) e f)) 'b )))) ; single nested elems are not valid elems
@@ -41,4 +41,12 @@
   (is (equal '((b c)) (find-lxml-nested-elems '((a b c)) '(b) )))
   (is (equal '((e f) (e f)) (find-lxml-nested-elems '((a b c d e f) (a (b c d e f))) '(b c d e) )))
   (is (equal '((e f) (e)) (find-lxml-nested-elems '((a b c d e f) (a (b c (d e) f))) '(b c d e) ))))
+
+(test find-get-lxml-values
+  (is (equal nil (get-lxml-values '() )))
+  (is (equal nil (get-lxml-values '(()) )))
+  (is (equal nil (get-lxml-values '((a)) )))
+  (is (equal '(b d) (get-lxml-values '((a b) (c d)) )))
+  (is (equal '(b d) (get-lxml-values '((a b) (c d) (e)) )))
+  (is (equal '(b d (f g)) (get-lxml-values '((a b) (c d) (e (f g))) ))))
 

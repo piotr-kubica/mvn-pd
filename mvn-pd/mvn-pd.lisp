@@ -14,11 +14,9 @@
 
 ;; O(2^n) runtime - use xml event-based parser in next version
 (defun find-lxml-elems (lxml elem &optional (eqfun #'equal))
-  (when (not (or (null lxml)
-		 (null elem)
-		 (not (listp lxml))
-		 (listp (car lxml))))
-    
+  (when (and lxml elem
+   	     (and (listp lxml)
+   		  (not (listp (car lxml)))))
     (let ((res (list)))
       (labels ((notemptylst (x)
 		 (and (not (null x)) (listp x)))
@@ -46,8 +44,8 @@
       (when (not (equal res '(nil)))
 	res))))
 
-
-;; TODO test
+;; looks for netsted elements
+;; each further element in elst is nested in previous
 (defun find-lxml-nested-elems (lxml elst &optional (eqfun #'equal))
   (labels ((find-elst (r el)
 	     (if (cdr el)
@@ -59,25 +57,16 @@
 		     lxml)))
     (find-lxml (reverse elst))))
 
-(defun get-lxml-values (reslst)
-  (when (not (null (reslst)))
-    ;; TODO 
-    ))
 
+(defun get-lxml-values (lxml-search-res)
+  (when lxml-search-res
+    (remove-if #'null (mapcar #'cadr lxml-search-res))))
 
-;; TODO test
-(defun build-pom-path (modulepaths)
-  (mapcar (lambda (p)
-	    (make-pathname
-	     :directory `(:relative ,p)
-	     :name "pom"
-	     :type "xml"))
-	  modulepaths))
+;; TODO returns artifactId of pom module
+;; (defun find-module-name (lxml)
+;; 		  )
 
-;; TODO readXmlToLxml
-
-;; TODO test
-;; (to-path '("../temp" "../a"))
-
-;; obtain-module-name
-;; (file-namestring "../foo/bar/baz") ; <- OK
+;; TODO find dependencies
+;; optionally filters by predicate that returns matched artifactId's
+;; (defun find-module-dependencies (lxml &optional filter-p)
+;;   )

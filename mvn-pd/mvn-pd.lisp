@@ -62,11 +62,24 @@
   (when lxml-search-res
     (remove-if #'null (mapcar #'cadr lxml-search-res))))
 
-;; TODO returns artifactId of pom module
-;; (defun find-module-name (lxml)
-;; 		  )
+
+;; TODO test
+;; returns artifactId of pom module
+(defun find-module-name (lxml)
+  (when 
+      (let ((elems-nested '(project artifactId)))
+	(get-lxml-values (find-lxml-nested-elems lxml elems-nested)))))
+	
 
 ;; TODO find dependencies
 ;; optionally filters by predicate that returns matched artifactId's
-;; (defun find-module-dependencies (lxml &optional filter-p)
+;; (defun find-module-deps (lxml &optional filter-p)
+;;   )
+
+;; build-dep as assoc list (module-name . dependent-module-list)
+;; build-dep-from-file
+;; build-deps-from-files
+
+;; TODO
+;; (defun to-dot-format (module-deps)
 ;;   )

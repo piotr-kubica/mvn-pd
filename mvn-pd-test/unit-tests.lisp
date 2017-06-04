@@ -42,7 +42,7 @@
   (is (equal '((e f) (e f)) (find-lxml-nested-elems '((a b c d e f) (a (b c d e f))) '(b c d e) )))
   (is (equal '((e f) (e)) (find-lxml-nested-elems '((a b c d e f) (a (b c (d e) f))) '(b c d e) ))))
 
-(test find-get-lxml-values
+(test get-lxml-values
   (is (equal nil (get-lxml-values '() )))
   (is (equal nil (get-lxml-values '(()) )))
   (is (equal nil (get-lxml-values '((a)) )))
@@ -50,3 +50,32 @@
   (is (equal '(b d) (get-lxml-values '((a b) (c d) (e)) )))
   (is (equal '(b d (f g)) (get-lxml-values '((a b) (c d) (e (f g))) ))))
 
+(test module-name-test
+      (let ((s (make-string-output-stream)))
+	;; (format s "test")
+	;; (is (equal "test" (get-output-stream-string s)))
+	(format s
+       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+        <project xmlns=\"http://maven.apache.org/POM/4.0.0\">
+    		<modelVersion>4.0.0</modelVersion>
+    		<groupId>com.domain.example</groupId>
+    		<artifactId>example-pom</artifactId>
+    		<version>0.1-SNAPSHOT</version>
+	<name>Maven Pom Example</name>
+	<dependencies>
+	        <dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8</version>
+			<scope>test</scope>
+		</dependency>
+        </dependencies>")
+	
+	;; (is (equal "example-pom" (find-module-name (parse-lxml s))))
+
+	;; use
+	;; (s-xml:parse-xml stream &key (output-type :lxml))   function
+	;;        Parse a character stream as XML and generate a DOM of output-type, defaulting to :lxml
+	
+	))
+	

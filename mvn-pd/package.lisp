@@ -2,10 +2,11 @@
 
 (defpackage :mvn-pd
   (:use :cl)
-  (:export :find-lxml-elems
+  (:export :find-module-name
+           :find-lxml-elems
 	   :find-lxml-nested-elems
 	   :get-lxml-values
-	   :str2keyword
+	   :keyword->str
 	   :eq-keyword
 	   :to-path))
 

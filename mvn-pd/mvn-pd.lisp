@@ -5,14 +5,11 @@
 
 (in-package :mvn-pd)
 
-(defun str2keyword (name)
-  (intern name :keyword))
+(defun keyword->str (keyw)
+  "converts string to keyword"
+  (symbol-name keyw))
 
-(defun eq-keyword (keyword1 keyword2)
-  ;; check equalisy but ignore keyword case-sensitivity
-  (eq keyword1 keyword2))
-
-;; O(2^n) runtime - use xml event-based parser in next version
+;;; O(2^n) runtime - use xml event-based parser in next version
 (defun find-lxml-elems (lxml elem &optional (eqfun #'equal))
   (when (and lxml elem
    	     (and (listp lxml)
@@ -44,9 +41,9 @@
       (when (not (equal res '(nil)))
 	res))))
 
-;; looks for netsted elements
-;; each further element in elst is nested in previous
+
 (defun find-lxml-nested-elems (lxml elst &optional (eqfun #'equal))
+  "looks for netsted elements, each further element in elst is nested in previous"
   (labels ((find-elst (r el)
 	     (if (cdr el)
 		 (car (find-lxml-elems (find-elst r (cdr el)) (car el) eqfun))
@@ -63,12 +60,17 @@
     (remove-if #'null (mapcar #'cadr lxml-search-res))))
 
 
-;; TODO test
-;; returns artifactId of pom module
 (defun find-module-name (lxml)
+  "returns artifactId of pom module"
   (when 
       (let ((elems-nested '(project artifactId)))
-	(get-lxml-values (find-lxml-nested-elems lxml elems-nested)))))
+					; TODO add equalp with keyword->str
+	;; MVN-PD-TEST> (equal "a" "A")
+	;; NIL
+	;; MVN-PD-TEST> (equalp "a" "A")
+	;; T
+ 	(get-lxml-values (find-lxml-nested-elems lxml elems-nested)))))
+
 	
 
 ;; TODO find dependencies

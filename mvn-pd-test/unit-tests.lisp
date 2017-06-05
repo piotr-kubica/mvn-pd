@@ -2,18 +2,14 @@
 
 (in-package :mvn-pd-test)
 
-(test str2keyword-test
+;; TODO fix! argument
+(test keyword->str-test
   "str2keyword coerce string to keyword"
-  (is (eq :|test| (str2keyword "test")))
-  (is (eq :|Test| (str2keyword "Test")))
-  (is (eq ':|TEST| (str2keyword "TEST"))))
-
-(test eq-keyword-test
-  "comapre keywords ignoring case"
-  (is-true (eq-keyword :a :a))
-  (is-false (eq-keyword :b :a))
-  (is-true (eq-keyword :A :a))
-  (is-true (eq-keyword :A :A)))
+  (is (eq :|test| (keyword->str "test")))
+  (is (eq :|Test| (keyword->str "Test")))
+  (is (eq :test (keyword->str "test")))
+  (is (eq :Test (keyword->str "Test")))
+  (is (eq ':|TEST| (keyword->str "TEST"))))
 
 (test find-elems-test
   "find elements in list"
@@ -51,15 +47,13 @@
   (is (equal '(b d (f g)) (get-lxml-values '((a b) (c d) (e (f g))) ))))
 
 (test module-name-test
-      (let ((s (make-string-output-stream)))
-	;; (format s "test")
-	;; (is (equal "test" (get-output-stream-string s)))
-	(format s
+  (setf s-xml:*ignore-namespaces* t)
+  (let* ((iss (make-string-input-stream
        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
         <project xmlns=\"http://maven.apache.org/POM/4.0.0\">
     		<modelVersion>4.0.0</modelVersion>
-    		<groupId>com.domain.example</groupId>
-    		<artifactId>example-pom</artifactId>
+    		<groupId>com.example</groupId>
+    		<artifactId>examplePom</artifactId>
     		<version>0.1-SNAPSHOT</version>
 	<name>Maven Pom Example</name>
 	<dependencies>
@@ -69,13 +63,13 @@
 			<version>4.8</version>
 			<scope>test</scope>
 		</dependency>
-        </dependencies>")
-	
-	;; (is (equal "example-pom" (find-module-name (parse-lxml s))))
+        </dependencies>
+        </project>"))
+	(lxml (s-xml:parse-xml iss)))
+    (is-true (input-stream-p iss))
+    (print lxml)
+    (print (find-lxml-nested-elems lxml '("artifactId")))))
+    ;; (is (equal "examplePom" (find-module-name lxml)))
+   
 
-	;; use
-	;; (s-xml:parse-xml stream &key (output-type :lxml))   function
-	;;        Parse a character stream as XML and generate a DOM of output-type, defaulting to :lxml
-	
-	))
-	
+

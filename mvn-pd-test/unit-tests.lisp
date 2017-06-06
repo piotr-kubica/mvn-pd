@@ -5,11 +5,11 @@
 ;; TODO fix! argument
 (test keyword->str-test
   "str2keyword coerce string to keyword"
-  (is (eq :|test| (keyword->str "test")))
-  (is (eq :|Test| (keyword->str "Test")))
-  (is (eq :test (keyword->str "test")))
-  (is (eq :Test (keyword->str "Test")))
-  (is (eq ':|TEST| (keyword->str "TEST"))))
+  (is (equal "test" (keyword->str :|test| )))
+  (is (equal "Test" (keyword->str :|Test| )))
+  (is (equal "TEST" (keyword->str :test )))
+  (is (equal "TEST" (keyword->str :Test )))
+  (is (equal "TEST" (keyword->str ':|TEST| ))))
 
 (test find-elems-test
   "find elements in list"

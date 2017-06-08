@@ -4,7 +4,8 @@
 
 ;; TODO fix! argument
 (test keyword->str-test
-  "str2keyword coerce string to keyword"
+  "keyword->str coerces keyword to string"
+  (is (equal "test" (keyword->str "test" )))
   (is (equal "test" (keyword->str :|test| )))
   (is (equal "Test" (keyword->str :|Test| )))
   (is (equal "TEST" (keyword->str :test )))
@@ -51,7 +52,7 @@
   (let* ((iss (make-string-input-stream
        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
         <project xmlns=\"http://maven.apache.org/POM/4.0.0\">
-    		<modelVersion>4.0.0</modelVersion>
+    		<modelVersion atr=\"a\" btr=\"b\">4.0.0</modelVersion>
     		<groupId>com.example</groupId>
     		<artifactId>examplePom</artifactId>
     		<version>0.1-SNAPSHOT</version>
@@ -68,8 +69,16 @@
 	(lxml (s-xml:parse-xml iss)))
     (is-true (input-stream-p iss))
     (print lxml)
-    (print (find-lxml-nested-elems lxml '("artifactId")))))
-    ;; (is (equal "examplePom" (find-module-name lxml)))
+    (format t "~%find lxml elems")
+    (print (find-lxml-elems lxml "project"
+				   #'(lambda (e x)
+				       (equal e (keyword->str x)))))
+    (format t "~%find lxml nested elems")
+    (print (find-lxml-nested-elems lxml '("artifactId")
+				   #'(lambda (e x)
+				       (equal e (keyword->str x)))))
+;;    (is (equal "examplePom" (find-module-name lxml)))
+    ))
    
 
 

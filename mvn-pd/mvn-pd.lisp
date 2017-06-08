@@ -7,9 +7,13 @@
 
 (defun keyword->str (keyw)
   "converts string to keyword"
-  (symbol-name keyw))
+  (when (symbolp keyw)
+    (symbol-name keyw)))
 
 ;;; O(2^n) runtime - use xml event-based parser in next version
+;;; rewrite: if first elem of list -> symbol
+;;; if not first and not-symbols follows then attribute with value
+;;; else empty elem (symbol after symbol)
 (defun find-lxml-elems (lxml elem &optional (eqfun #'equal))
   (when (and lxml elem
    	     (and (listp lxml)

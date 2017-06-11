@@ -10,10 +10,56 @@
   (when (symbolp keyw)
     (symbol-name keyw)))
 
-;;; O(2^n) runtime - use xml event-based parser in next version
+;; ((:|project| :|xmlns| "http://maven.apache.org/POM/4.0.0")
+;;  ((:|modelVersion| :|atr| "a" :|btr| "b") "4.0.0") (:|groupId| "com.example")
+;;  (:|artifactId| "examplePom")
+;;  (:|version| :|va| ((:|vb| :|atr| "a") "text")
+;;   ((:|vb| :|atr| "a") "text " :|vc|))
+;;  (:|name| "Maven Pom Example")
+;;  (:|dependencies|
+;;   (:|dependency| (:|groupId| "junit") (:|artifactId| "junit")
+;;    (:|version| "4.8") (:|scope| "test"))))
+
+(defun attr? (elem)
+  (and (listp elem)
+       (listp (car elem))))
+
+(defun attr (elem)
+  (and (attr? elem)
+       (cdr (car elem))))
+
+(defun children? (elem)
+  (and (listp elem)
+       (> (length elem) 1)))
+
+(defun children (elem)
+  (and (children? elem)
+       (cdr elem)))
+
+(defun name (elem)
+  (cond ((attr? elem) (caar elem))
+	((listp elem) (car elem))
+	(t elem)))
+
 ;;; rewrite: if first elem of list -> symbol
 ;;; if not first and not-symbols follows then attribute with value
 ;;; else empty elem (symbol after symbol)
+(defun find-lxml-el (lxml el &optional (eqfun #'equal))
+  (let ((res))
+    (labels ((is-eq (x)
+	       (funcall eqfun el x))
+	     (find-el (elem)
+	       (if (is-eq (name elem))
+		   (push elem res)
+		   (if (children? elem)
+		       (mapc #'findel children)))))
+      (when (and lxml el eqfun)
+	(find-el lxml)
+	res))))
+
+
+
+;;; O(2^n) runtime - use xml event-based parser in next version
 (defun find-lxml-elems (lxml elem &optional (eqfun #'equal))
   (when (and lxml elem
    	     (and (listp lxml)

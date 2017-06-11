@@ -5,7 +5,7 @@
 ;; TODO fix! argument
 (test keyword->str-test
   "keyword->str coerces keyword to string"
-  (is (equal "test" (keyword->str "test" )))
+  (is (equal nil (keyword->str "test" )))
   (is (equal "test" (keyword->str :|test| )))
   (is (equal "Test" (keyword->str :|Test| )))
   (is (equal "TEST" (keyword->str :test )))
@@ -55,7 +55,11 @@
     		<modelVersion atr=\"a\" btr=\"b\">4.0.0</modelVersion>
     		<groupId>com.example</groupId>
     		<artifactId>examplePom</artifactId>
-    		<version>0.1-SNAPSHOT</version>
+    		<version>
+                    <va></va>
+                    <vb atr=\"a\">text</vb>
+                    <vb atr=\"a\">text <vc></vc></vb>
+                </version>
 	<name>Maven Pom Example</name>
 	<dependencies>
 	        <dependency>

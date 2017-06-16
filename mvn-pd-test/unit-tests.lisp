@@ -25,29 +25,29 @@
 
 (test children-elem-test
   (is (equal nil (mvn-pd::children-elem nil )))
-  (is (equal nil (mvn-pd::children-elem :|vb| )))
-  (is (equal nil (mvn-pd::children-elem '((:|vb| :|atr| "a") "text") )))
-  (is (equal nil (mvn-pd::children-elem '(:|vb| "text") )))
-  (is (equal '(:|vc|) (mvn-pd::children-elem '((:|vb| :|atr| "a") "text" :|vc|) )))
-  (is (equal '(:|vc|) (mvn-pd::children-elem '((:|vb| :|atr| "a") :|vc|) )))
-  (is (equal '(:|vc| :|vd|) (mvn-pd::children-elem '(:|vb| :|vc| :|vd|) ))))
+  (is (equal nil (mvn-pd::children-elem :|a| )))
+  (is (equal nil (mvn-pd::children-elem '((:|a| :|atr| "a") "text") )))
+  (is (equal nil (mvn-pd::children-elem '(:|a| "text") )))
+  (is (equal '(:|c|) (mvn-pd::children-elem '((:|a| :|atr| "a") "text" :|c|) )))
+  (is (equal '(:|c|) (mvn-pd::children-elem '((:|b| :|atr| "a") :|c|) )))
+  (is (equal '(:|c| :|d|) (mvn-pd::children-elem '(:|b| :|c| :|d|) ))))
 
 
 ;; setup common data for lxml tests
 (setf s-xml:*ignore-namespaces* t)
-(defvar +sis+ (make-string-input-stream
+(defparameter +sis+ (make-string-input-stream
 	"<?xml version=\"1.0\" encoding=\"UTF-8\"?>
         <r ns=\"http://maven.apache.org/POM/4.0.0\">
 	  <a atr1=\"a\" atr2=\"b\">text</a>
           <b></b>
-          <c>example</c>
+          <c>example<f></f></c>
           <d>
             <b atr=\"b\">text-b</b>
             <c atr=\"c\">text-c<e></e></c>
             <d></d>
           </d>
         </r>"))
-(defvar +lxml+ (s-xml:parse-xml +sis+))
+(defparameter +lxml+ (s-xml:parse-xml +sis+))
 
 
 (test data-lxml-test
@@ -57,7 +57,7 @@
        '((:|r| :|ns| "http://maven.apache.org/POM/4.0.0")
 	 ((:|a| :|atr1| "a" :|atr2| "b") "text")
 	 :|b|
-	 (:|c| "example")
+	 (:|c| "example" :|f|)
 	 (:|d|
 	  ((:|b| :|atr| "b") "text-b")
 	  ((:|c| :|atr| "c") "text-c"
@@ -86,18 +86,21 @@
 	       nil)))
 
 
-;; TODO test
 (test find-lxml-el-children
-      
-      ;; (is (equal (mvn-pd::find-lxml-el-children +lxml+ :|vb|)))
-      ;; 						     :child-f #'mvn-pd::children-elem)))
-      ;; (is (equal nil
-      ;; 		 (mvn-pd::find-lxml-el-children lxml :|groupId|)))
-      ;; (is (equal nil
-      ;; 		 (mvn-pd::find-lxml-el-children lxml nil)))
-      ;; (is (equal nil
-      ;; 		 (mvn-pd::find-lxml-el-children lxml :|dependency| :max-nest 1)
-		 )
+  (is (equal (mvn-pd::find-lxml-el-children +lxml+ :|b|)
+	     nil))
+
+  (is (equal (mvn-pd::find-lxml-el-children +lxml+ :|c|)
+	     '(:|e| :|f|) ))
+
+  (is (equal (mvn-pd::find-lxml-el-children +lxml+ nil)
+	     nil))
+
+  (is (equal (mvn-pd::find-lxml-el-children +lxml+ :|notExisting|)
+	     nil))
+
+  (is (equal (mvn-pd::find-lxml-el-children +lxml+ :|c| :max-nest 1)
+	     '(:|f|) )))
 
 
 ;; (test find-nested-el-test
@@ -108,8 +111,6 @@
 ;;     ;; (print (find-nested-el lxml '(:|a| :|b|)))
 ;; ))
 	
-
-
 
 (test find-lxml-el-integration-test
   (let* ((sis (make-string-input-stream

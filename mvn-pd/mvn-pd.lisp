@@ -3,6 +3,7 @@
 
 (in-package :mvn-pd)
 
+
 (defun keyword->str (kw)
   "converts keyword to string"
   (when (symbolp kw)
@@ -40,6 +41,7 @@
 	((listp elem) (car elem))
 	(t elem)))
 
+
 ;;; O(2^n) runtime - use xml event-based parser in next version ?
 (defun find-lxml-el (lxml el &key (eqfun #'equal) (max-nest (- 1)))
   "finds all elements that match el and returns as list"
@@ -61,57 +63,39 @@
 	(find-el lxml 0)
 	res))))
 
-;; TODO test
+
 (defun find-lxml-el-children (lxml el &key (child-f #'children-elem)
 					(eqfun #'equal)
 					(max-nest (- 1)))
-  "find elements with child nodes at given nesting level"
+  "find elements child nodes and returns them as list"
   (when (and lxml el eqfun max-nest)
-    (remove-if #'null 
-	       (mapcar child-f
-		       (find-lxml-el lxml el
-				     :eqfun eqfun
-				     :max-nest max-nest)))))
+    (remove-duplicates
+     (mapcan #'append
+	     (remove-if #'null 
+			(mapcar child-f
+				(find-lxml-el lxml el
+					      :eqfun eqfun
+					      :max-nest max-nest)))))))
 
 
-;; TODO fix
+;; TODO fix & test
 (defun find-nested-el (lxml elems &key (eqfun #'equal))
   "looks for directly nested elements and returns them as list"
   (labels ((find-offspring (lxml el)
-	     (car (find-lxml-el-with-children lxml el
-					      :child-p #'children?
-					      :child-f #'children-elem)))
+	     (find-lxml-el-with-children lxml el :max-nest -1))
 	   (find-children (lxml el)
-	     (car (find-lxml-el-with-children lxml el
-					      :child-f #'children-elem
-					      :max-nest 1)))
+	     (find-lxml-el-with-children lxml el :max-nest 1))
 	   (find-elems (input elst)
 	     (format t "~& input: ~& ~s" input)
 	     (format t "~& elst: ~& ~s" elst)
 	     (if elst
-	       (find-elems
-		(find-children input (car elst))
+	       (find-elems (find-children input (car elst))
 		(cdr elst))
 	       input)))
     (when (and lxml elems eqfun)
       ;; first time search - look for elems of any nest level
       (find-elems (find-offspring lxml (car elems))  (cdr elems)))))
       
-	       
-			      
-
-;; TODO use find-lxml-el
-;; (defun find-lxml-nested-elems (lxml elst &optional (eqfun #'equal))
-;;   "looks for netsted elements, each further element in elst is nested in previous"
-;;   (labels ((find-elst (r el)
-;; 	     (if (cdr el)
-;; 		 (car (find-lxml-elems (find-elst r (cdr el)) (car el) eqfun))
-;; 		 (car (find-lxml-elems r (car el) eqfun))))
-;; 	   (find-lxml (el)
-;; 	     (mapcar (lambda (r)
-;; 		       (find-elst r el))
-;; 		     lxml)))
-;;     (find-lxml (reverse elst))))
 
 
 ;; TODO

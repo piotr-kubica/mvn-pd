@@ -2,39 +2,116 @@
 
 (in-package :mvn-pd-test)
 
+
 (test keyword->str-test
   "keyword->str coerces keyword to string"
-  (is (equal nil (keyword->str "test" )))
-  (is (equal "test" (keyword->str :|test| )))
-  (is (equal "Test" (keyword->str :|Test| )))
-  (is (equal "TEST" (keyword->str :test )))
-  (is (equal "TEST" (keyword->str :Test )))
-  (is (equal "TEST" (keyword->str ':|TEST| ))))
+  (is (equal nil (mvn-pd::keyword->str "test" )))
+  (is (equal "test" (mvn-pd::keyword->str :|test| )))
+  (is (equal "Test" (mvn-pd::keyword->str :|Test| )))
+  (is (equal "TEST" (mvn-pd::keyword->str :test )))
+  (is (equal "TEST" (mvn-pd::keyword->str :Test )))
+  (is (equal "TEST" (mvn-pd::keyword->str ':|TEST| ))))
+
+
+(test children-elem?-test
+  (is-false (mvn-pd::children-elem? nil ))
+  (is-false (mvn-pd::children-elem? :|vb| ))
+  (is-false (mvn-pd::children-elem? '((:|vb| :|atr| "a") "text") ))
+  (is-false (mvn-pd::children-elem? '(:|vb| "text") ))
+  (is-true (mvn-pd::children-elem? '((:|vb| :|atr| "a") "text" :|vc|) ))
+  (is-true (mvn-pd::children-elem? '((:|vb| :|atr| "a") :|vc|) ))
+  (is-true (mvn-pd::children-elem? '(:|vb| :|vc|) ))) 
+
+
+(test children-elem-test
+  (is (equal nil (mvn-pd::children-elem nil )))
+  (is (equal nil (mvn-pd::children-elem :|vb| )))
+  (is (equal nil (mvn-pd::children-elem '((:|vb| :|atr| "a") "text") )))
+  (is (equal nil (mvn-pd::children-elem '(:|vb| "text") )))
+  (is (equal '(:|vc|) (mvn-pd::children-elem '((:|vb| :|atr| "a") "text" :|vc|) )))
+  (is (equal '(:|vc|) (mvn-pd::children-elem '((:|vb| :|atr| "a") :|vc|) )))
+  (is (equal '(:|vc| :|vd|) (mvn-pd::children-elem '(:|vb| :|vc| :|vd|) ))))
+
+
+;; setup common data for lxml tests
+(setf s-xml:*ignore-namespaces* t)
+(defvar +sis+ (make-string-input-stream
+	"<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+        <r ns=\"http://maven.apache.org/POM/4.0.0\">
+	  <a atr1=\"a\" atr2=\"b\">text</a>
+          <b></b>
+          <c>example</c>
+          <d>
+            <b atr=\"b\">text-b</b>
+            <c atr=\"c\">text-c<e></e></c>
+            <d></d>
+          </d>
+        </r>"))
+(defvar +lxml+ (s-xml:parse-xml +sis+))
+
+
+(test data-lxml-test
+  (is-true (input-stream-p +sis+))
+  (is (equal
+       +lxml+ 
+       '((:|r| :|ns| "http://maven.apache.org/POM/4.0.0")
+	 ((:|a| :|atr1| "a" :|atr2| "b") "text")
+	 :|b|
+	 (:|c| "example")
+	 (:|d|
+	  ((:|b| :|atr| "b") "text-b")
+	  ((:|c| :|atr| "c") "text-c"
+	   :|e|)
+	  :|d|))))
+  (print +lxml+))
+
 
 (test find-lxml-el-test
-  (let ((lxml
-	 '((:|project| :|xmlns| "http://maven.apache.org/POM/4.0.0")
-	   ((:|modelVersion| :|atr| "a" :|btr| "b") "4.0.0") (:|groupId| "com.example")
-	   (:|artifactId| "examplePom")
-	   (:|version| :|va| ((:|vb| :|atr| "a") "text2")
-	    ((:|vb| :|atr| "a") "text" :|vc|))
-	   (:|name| "Maven Pom Example")
-	   (:|dependencies|
-	    (:|dependency| (:|groupId| "junit") (:|artifactId| "junit")
-	     (:|version| "4.8") (:|scope| "test")))) ))
+    (is (equal nil (find-lxml-el +lxml+ :|notexisting|)))
+    (is (equal nil (find-lxml-el nil :|r|)))
     
-    (is (equal nil (find-lxml-el lxml :|notexisting|)))
-    (is (equal nil (find-lxml-el nil :|name|)))
-    (is (equal '(((:|vb| :|atr| "a") "text" :|vc|) ((:|vb| :|atr| "a") "text2"))
-	       (find-lxml-el lxml :|vb|)))
-    (is (equal '(:|vc|)
-	       (find-lxml-el lxml :|vc|)))
-    (is (equal nil
-	       (find-lxml-el lxml :|atr|))) ))
+    (is (equal (find-lxml-el +lxml+ :|b|)
+	       '(((:|b| :|atr| "b") "text-b") :|b|)))
+    
+    (is (equal (find-lxml-el +lxml+ :|b| :max-nest 1)
+	       '(:|b|)))
+
+    (is (equal (find-lxml-el +lxml+ :|b| :max-nest 0)
+	       nil))
+    
+    (is (equal (find-lxml-el +lxml+ :|e|)
+	       '(:|e|)))
+    
+    (is (equal (find-lxml-el +lxml+ :|atr|)
+	       nil)))
+
+
+;; TODO test
+(test find-lxml-el-children
+      
+      ;; (is (equal (mvn-pd::find-lxml-el-children +lxml+ :|vb|)))
+      ;; 						     :child-f #'mvn-pd::children-elem)))
+      ;; (is (equal nil
+      ;; 		 (mvn-pd::find-lxml-el-children lxml :|groupId|)))
+      ;; (is (equal nil
+      ;; 		 (mvn-pd::find-lxml-el-children lxml nil)))
+      ;; (is (equal nil
+      ;; 		 (mvn-pd::find-lxml-el-children lxml :|dependency| :max-nest 1)
+		 )
+
+
+;; (test find-nested-el-test
+;;   (let ((lxml
+;; 	 '(:|a| (:|b| :|c|))))
+;;     ;; (print (find-nested-el lxml '(:|a|)))
+;;     (print (find-nested-el lxml '(:|a| :|b|)))
+;;     ;; (print (find-nested-el lxml '(:|a| :|b|)))
+;; ))
+	
+
 
 
 (test find-lxml-el-integration-test
-  (setf s-xml:*ignore-namespaces* t)
   (let* ((sis (make-string-input-stream
        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
         <project>
@@ -43,11 +120,15 @@
         </project>"))
 	(lxml (s-xml:parse-xml sis)))
     (is-true (input-stream-p sis))
-    (print lxml)
+    ;; (print lxml)
     (is (equal '((:|name| "Maven Pom Example 2") (:|name| "Maven Pom Example"))
 	       (find-lxml-el lxml :|name|)))
     (is (equal nil
 	       (find-lxml-el lxml :|Name|)))))
+
+
+
+
 
 ;; TODO rewrite with realworld example
 ;; (test find-nested-elems-test

@@ -148,6 +148,7 @@
 	       (find-lxml-el lxml :|Name|)))))
 
 
+;; TODO test for optional groupid
 (test find-module-name-integration-test
   (let* ((sis (make-string-input-stream
 	       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>

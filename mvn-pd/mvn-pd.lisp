@@ -109,14 +109,20 @@
       (find-elems (find-offspring lxml (car elems))  (cdr elems)))))
 
 
-(defun find-module-name (lxml)
+(defun find-module-name (lxml &key (group-id-p t))
   "returns groupId-artifactId of pom module"
   (let* ((art-id-el (find-nested-el lxml '(:|project| :|artifactId|) ))
 	 (gr-id-el  (find-nested-el lxml '(:|project| :|groupId|) ))
 	 (art-id-name (mapcan #'mvn-pd::text art-id-el))
 	 (gr-id-name  (mapcan #'mvn-pd::text gr-id-el)))
-    (when (and art-id-name gr-id-name)
-      (concatenate 'string (car gr-id-name) "-" (car art-id-el)))))
+    (when (and art-id-name
+	       (if group-id-p
+		   gr-id-name
+		   t))
+      (concatenate 'string
+		   (if group-id-p
+		       (concatenate 'string (car gr-id-name) "-"))
+		   (car art-id-name)))))
 	
 
 

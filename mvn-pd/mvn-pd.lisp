@@ -70,32 +70,34 @@
   "find elements child nodes and returns them as list"
   (when (and lxml el eqfun max-nest)
     (remove-duplicates
-     (mapcan #'append
-	     (remove-if #'null 
-			(mapcar child-f
-				(find-lxml-el lxml el
-					      :eqfun eqfun
-					      :max-nest max-nest)))))))
+     (mapcan child-f
+	     (find-lxml-el lxml el
+			   :eqfun eqfun
+			   :max-nest max-nest)))))
 
 
-;; TODO fix & test
 (defun find-nested-el (lxml elems &key (eqfun #'equal))
   "looks for directly nested elements and returns them as list"
   (labels ((find-offspring (lxml el)
-	     (find-lxml-el-with-children lxml el :max-nest -1))
+	     "first seach: decendands of any level"
+	     (find-lxml-el-children lxml el :max-nest -1))
 	   (find-children (lxml el)
-	     (find-lxml-el-with-children lxml el :max-nest 1))
-	   (find-elems (input elst)
-	     (format t "~& input: ~& ~s" input)
-	     (format t "~& elst: ~& ~s" elst)
+	     "second+ search: only direct children"
+	     (find-lxml-el-children lxml el :max-nest 1))
+	   (find-elems (ch-lst elst)
+	     ;; (format t "~& input: ~& ~s" ch-lst)
+	     ;; (format t "~& elst: ~& ~s" elst)
 	     (if elst
-	       (find-elems (find-children input (car elst))
-		(cdr elst))
-	       input)))
+		 (find-elems
+		  (mapcan (lambda (cel)
+			    (find-children cel (car elst)))
+			  ch-lst)
+		  (cdr elst))
+		 ch-lst)))
     (when (and lxml elems eqfun)
       ;; first time search - look for elems of any nest level
       (find-elems (find-offspring lxml (car elems))  (cdr elems)))))
-      
+
 
 
 ;; TODO

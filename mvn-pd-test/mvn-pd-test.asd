@@ -1,4 +1,4 @@
-;;;; mvn-pd--test.asd
+;;;; mvn-pd-test.asd
 
 (asdf:defsystem :mvn-pd-test
   :description "Tests for mvn-pd"
@@ -8,6 +8,5 @@
                :fiveam)
   :serial t
   :components ((:file "package")
-               (:file "unit-tests")
-	       (:file "integration-tests")))
+               (:file "unit-tests")))
 

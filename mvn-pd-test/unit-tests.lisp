@@ -12,7 +12,6 @@
   (is (equal "TEST" (mvn-pd::keyword->str :Test )))
   (is (equal "TEST" (mvn-pd::keyword->str ':|TEST| ))))
 
-
 (test children-elem?-test
   (is-false (mvn-pd::children-elem? nil ))
   (is-false (mvn-pd::children-elem? :|vb| ))
@@ -30,7 +29,7 @@
   (is (equal nil (mvn-pd::children-elem '(:|a| "text") )))
   (is (equal '(:|c|) (mvn-pd::children-elem '((:|a| :|atr| "a") "text" :|c|) )))
   (is (equal '(:|c|) (mvn-pd::children-elem '((:|b| :|atr| "a") :|c|) )))
-  (is (equal '(:|c| :|d|) (mvn-pd::children-elem '(:|b| :|c| :|d|) ))))
+  (is (equal '((:|c| :|d|) :|e|) (mvn-pd::children-elem '(:|b| (:|c| :|d|) :|e|) ))))
 
 
 ;; setup common data for lxml tests
@@ -69,6 +68,9 @@
 (test find-lxml-el-test
     (is (equal nil (find-lxml-el +lxml+ :|notexisting|)))
     (is (equal nil (find-lxml-el nil :|r|)))
+
+    (is (equal (find-lxml-el +lxml+ :|a|)
+	       '(((:|a| :|atr1| "a" :|atr2| "b") "text"))))
     
     (is (equal (find-lxml-el +lxml+ :|b|)
 	       '(((:|b| :|atr| "b") "text-b") :|b|)))
@@ -87,11 +89,17 @@
 
 
 (test find-lxml-el-children
+  (is (equal (mvn-pd::find-lxml-el-children +lxml+ :|a|)
+	     nil))
+    
   (is (equal (mvn-pd::find-lxml-el-children +lxml+ :|b|)
 	     nil))
 
   (is (equal (mvn-pd::find-lxml-el-children +lxml+ :|c|)
 	     '(:|e| :|f|) ))
+
+  (is (equal (mvn-pd::find-lxml-el-children '(:|b| (:|c| :|d|) :|e|) :|b|)
+	     '((:|c| :|d|) :|e| )))
 
   (is (equal (mvn-pd::find-lxml-el-children +lxml+ nil)
 	     nil))
@@ -103,13 +111,10 @@
 	     '(:|f|) )))
 
 
-;; (test find-nested-el-test
-;;   (let ((lxml
-;; 	 '(:|a| (:|b| :|c|))))
-;;     ;; (print (find-nested-el lxml '(:|a|)))
-;;     (print (find-nested-el lxml '(:|a| :|b|)))
-;;     ;; (print (find-nested-el lxml '(:|a| :|b|)))
-;; ))
+(test find-nested-el-test
+  (is (equal (find-nested-el '(:|b| (:|c| :|d|) :|e|) '(:|b| :|c|))
+	     '(:|d|)))
+))
 	
 
 (test find-lxml-el-integration-test

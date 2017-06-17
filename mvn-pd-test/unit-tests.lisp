@@ -112,9 +112,24 @@
 
 
 (test find-nested-el-test
+
+  (is (equal (find-nested-el nil '(:|b| :|c|))
+	     nil))
+
+  (is (equal (find-nested-el +lxml+ nil)
+	     nil))
+
   (is (equal (find-nested-el '(:|b| (:|c| :|d|) :|e|) '(:|b| :|c|))
 	     '(:|d|)))
-))
+
+  (is (equal (find-nested-el +lxml+ '(:|d| :|c|))
+	     '(:|e|) ))
+  
+  (is (equal (find-nested-el +lxml+ '(:|r| :|d| :|c|))
+	     '(:|e|) ))
+  
+  (is (equal (find-nested-el +lxml+ '(:|r| :|c|))
+	     '(:|f| :|e|) )))
 	
 
 (test find-lxml-el-integration-test
@@ -133,42 +148,67 @@
 	       (find-lxml-el lxml :|Name|)))))
 
 
+(test find-module-name-integration-test
+  (let* ((sis (make-string-input-stream
+	       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+        <project xmlns=\"http://maven.apache.org/POM/4.0.0\">
+    		<modelVersion atr=\"a\" btr=\"b\">4.0.0</modelVersion>
+    		<groupId>com.example</groupId>
+    		<artifactId>examplePom</artifactId>
+    		<version>
+                    <va></va>
+                    <vb atr=\"a\">text</vb>
+                    <vb atr=\"a\">text <vc></vc></vb>
+                </version>
+	<name>Maven Pom Example</name>
+	<dependencies>
+	        <dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8</version>
+			<scope>test</scope>
+		</dependency>
+        </dependencies>
+        </project>"))
+	 (lxml (s-xml:parse-xml sis)))
+    (print (find-module-name lxml))
+    (is (equal (find-module-name lxml)
+	       "com.example-examplePom"))))
 
-
-
-;; TODO rewrite with realworld example
-;; (test find-nested-elems-test
-;;   (is (equal '(()) (find-lxml-nested-elems '(()) '() )))
-;;   (is (equal '(()) (find-lxml-nested-elems '(()) '(a) )))
-;;   (is (equal '(()) (find-lxml-nested-elems '((a)) '() )))
-;;   (is (equal '((a)) (find-lxml-nested-elems '((a)) '(a) )))
-;;   (is (equal '((b c)) (find-lxml-nested-elems '((a b c)) '(b) )))
-;;   (is (equal '((e f) (e f)) (find-lxml-nested-elems '((a b c d e f) (a (b c d e f))) '(b c d e) )))
-;;   (is (equal '((e f) (e)) (find-lxml-nested-elems '((a b c d e f) (a (b c (d e) f))) '(b c d e) ))))
-
-
-;; TEST data
-;;
-;;        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-;;         <project xmlns=\"http://maven.apache.org/POM/4.0.0\">
-;;     		<modelVersion atr=\"a\" btr=\"b\">4.0.0</modelVersion>
-;;     		<groupId>com.example</groupId>
-;;     		<artifactId>examplePom</artifactId>
-;;     		<version>
-;;                     <va></va>
-;;                     <vb atr=\"a\">text</vb>
-;;                     <vb atr=\"a\">text <vc></vc></vb>
-;;                 </version>
-;; 	<name>Maven Pom Example</name>
-;; 	<dependencies>
-;; 	        <dependency>
-;; 			<groupId>junit</groupId>
-;; 			<artifactId>junit</artifactId>
-;; 			<version>4.8</version>
-;; 			<scope>test</scope>
-;; 		</dependency>
-;;         </dependencies>
-;;         </project>"))
+;; TODO test
+(test find-dependencies-integration-test
+  (let* ((sis (make-string-input-stream
+	       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+        <project xmlns=\"http://maven.apache.org/POM/4.0.0\">
+    		<modelVersion atr=\"a\" btr=\"b\">4.0.0</modelVersion>
+    		<groupId>com.example</groupId>
+    		<artifactId>examplePom</artifactId>
+    		<version>
+                    <va></va>
+                    <vb atr=\"a\">text</vb>
+                    <vb atr=\"a\">text <vc></vc></vb>
+                </version>
+	<name>Maven Pom Example</name>
+	<dependencies>
+	        <dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8</version>
+			<scope>test</scope>
+		</dependency>
+	        <dependency>
+			<groupId>mockito</groupId>
+			<artifactId>mockito</artifactId>
+			<version>1.9.2</version>
+			<scope>test</scope>
+		</dependency>
+        </dependencies>
+        </project>"))
+	 (lxml (s-xml:parse-xml sis)))
+    (print (find-module-name lxml))
+    (is (equal (find-module-name lxml)
+	       "examplePom"))
+    ))
 
 
 

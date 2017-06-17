@@ -41,6 +41,11 @@
 	((listp elem) (car elem))
 	(t elem)))
 
+(defun text (elem)
+  "returns element containing element value excluding other nodes"
+  (and (children? elem)
+       (remove-if-not #'stringp (children elem))))
+
 
 ;;; O(2^n) runtime - use xml event-based parser in next version ?
 (defun find-lxml-el (lxml el &key (eqfun #'equal) (max-nest (- 1)))
@@ -82,28 +87,38 @@
 	     "first seach: decendands of any level"
 	     (find-lxml-el-children lxml el :max-nest -1))
 	   (find-children (lxml el)
-	     "second+ search: only direct children"
+	     "second to second-to-last search: only direct children"
 	     (find-lxml-el-children lxml el :max-nest 1))
+	   (last-searched? (elst)
+	     "is last searched elem"
+	     (null (cdr elst)))
+	   (find-el (lxml el)
+	     "when last search then search for full elems"
+	     (find-lxml-el lxml el :max-nest 1))
 	   (find-elems (ch-lst elst)
-	     ;; (format t "~& input: ~& ~s" ch-lst)
-	     ;; (format t "~& elst: ~& ~s" elst)
 	     (if elst
 		 (find-elems
 		  (mapcan (lambda (cel)
-			    (find-children cel (car elst)))
+			    (if (last-searched? elst)
+				(find-el cel (car elst))
+				(find-children cel (car elst))))
 			  ch-lst)
 		  (cdr elst))
 		 ch-lst)))
     (when (and lxml elems eqfun)
-      ;; first time search - look for elems of any nest level
       (find-elems (find-offspring lxml (car elems))  (cdr elems)))))
 
 
-
-;; TODO
-;; (defun find-module-name (lxml)		
-;; "returns artifactId of pom module"
+(defun find-module-name (lxml)
+  "returns groupId-artifactId of pom module"
+  (let* ((art-id-el (find-nested-el lxml '(:|project| :|artifactId|) ))
+	 (gr-id-el  (find-nested-el lxml '(:|project| :|groupId|) ))
+	 (art-id-name (mapcan #'mvn-pd::text art-id-el))
+	 (gr-id-name  (mapcan #'mvn-pd::text gr-id-el)))
+    (when (and art-id-name gr-id-name)
+      (concatenate 'string (car gr-id-name) "-" (car art-id-el)))))
 	
+
 
 ;; TODO find dependencies
 ;; optionally filters by predicate that returns matched artifactId's

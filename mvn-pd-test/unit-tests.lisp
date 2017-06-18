@@ -2,6 +2,8 @@
 
 (in-package :mvn-pd-test)
 
+;; TODO move all  example data to top
+
 
 (test keyword->str-test
   "keyword->str coerces keyword to string"
@@ -148,7 +150,6 @@
 	       (find-lxml-el lxml :|Name|)))))
 
 
-;; TODO test for optional groupid
 (test find-module-name-integration-test
   (let* ((sis (make-string-input-stream
 	       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
@@ -172,9 +173,13 @@
         </dependencies>
         </project>"))
 	 (lxml (s-xml:parse-xml sis)))
-    (print (find-module-name lxml))
+
+    (is (equal (find-module-name lxml :gr-id t)
+	       "com.example-examplePom"))
+
     (is (equal (find-module-name lxml)
-	       "com.example-examplePom"))))
+	       "examplePom")) ))
+
 
 ;; TODO test
 (test find-dependencies-integration-test

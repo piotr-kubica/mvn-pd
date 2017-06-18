@@ -18,7 +18,7 @@
        (cdr (car elem))))
 
 (defun children? (elem)
-  "returns true if element contains children including text nodes"
+  "returns true if element contains children including value-elem? nodes"
   (and (listp elem)
        (> (length elem) 1)))
 
@@ -27,12 +27,12 @@
        (cdr elem)))
 
 (defun children-elem? (elem)
-  "returns true if element contains children excluding text nodes"
+  "returns true if element contains children excluding value-elem? nodes"
   (and (children? elem)
        (remove-if #'stringp (children elem))))
 
 (defun children-elem (elem)
-  "returns true if element contains children excluding text nodes"
+  "returns true if element contains children excluding value-elem? nodes"
   (if (children? elem)
       (remove-if #'stringp (children elem))))
 
@@ -41,7 +41,7 @@
 	((listp elem) (car elem))
 	(t elem)))
 
-(defun text (elem)
+(defun value-elem? (elem)
   "returns element containing element value excluding other nodes"
   (and (children? elem)
        (remove-if-not #'stringp (children elem))))
@@ -84,16 +84,16 @@
 (defun find-nested-el (lxml elems &key (eqfun #'equal))
   "looks for directly nested elements and returns them as list"
   (labels ((find-offspring (lxml el)
-	     "first seach: decendands of any level"
+	     "first seach: descendands of any level"
 	     (find-lxml-el-children lxml el :max-nest -1))
 	   (find-children (lxml el)
 	     "second to second-to-last search: only direct children"
 	     (find-lxml-el-children lxml el :max-nest 1))
 	   (last-searched? (elst)
-	     "is last searched elem"
+	     "is this the last searched elem?"
 	     (null (cdr elst)))
 	   (find-el (lxml el)
-	     "when last search then search for full elems"
+	     "when last search then return full elems"
 	     (find-lxml-el lxml el :max-nest 1))
 	   (find-elems (ch-lst elst)
 	     (if elst
@@ -109,31 +109,53 @@
       (find-elems (find-offspring lxml (car elems))  (cdr elems)))))
 
 
-(defun find-module-name (lxml &key (group-id-p t))
+(defun dependency-name (art-id &optional gr-id)
+  (when art-id
+    (concatenate 'string
+		 (if gr-id
+		     (concatenate 'string gr-id "-"))
+		 art-id)))
+		     
+
+(defun find-module-name (lxml &key (gr-id nil))
   "returns groupId-artifactId of pom module"
   (let* ((art-id-el (find-nested-el lxml '(:|project| :|artifactId|) ))
 	 (gr-id-el  (find-nested-el lxml '(:|project| :|groupId|) ))
-	 (art-id-name (mapcan #'mvn-pd::text art-id-el))
-	 (gr-id-name  (mapcan #'mvn-pd::text gr-id-el)))
+	 (art-id-name (mapcan #'value-elem? art-id-el))
+	 (gr-id-name  (mapcan #'value-elem? gr-id-el)))
     (when (and art-id-name
-	       (if group-id-p
+	       (if gr-id
 		   gr-id-name
 		   t))
-      (concatenate 'string
-		   (if group-id-p
-		       (concatenate 'string (car gr-id-name) "-"))
-		   (car art-id-name)))))
-	
+      (dependency-name (car art-id-name)
+		       (if gr-id
+			   (car gr-id-name))))))
 
 
-;; TODO find dependencies
-;; optionally filters by predicate that returns matched artifactId's
-;; (defun find-module-deps (lxml &optional filter-p)
-;;   )
+(defun find-dependencies (lxml &key (gr-id nil) (elem)
+  "TODO"
+  ;; optionally filters by predicate that returns matched artifactId's
+  ;; (defun find-module-deps (lxml &optional filter-p)
+  ;;   )
+				     ))
 
-;; build-dep as assoc list (module-name . dependent-module-list)
-;; build-dep-from-file
-;; build-deps-from-files
+
+(defun match-value-elem-text (lxml regex)
+  "TODO"
+  ;; filters elements with value-elem? - function value-elem?
+  ;; filters values (see value-elem?)
+  )
+
+
+(defun module-dependencies (lxml &key (gr-id nil))
+  "TODO"
+  ;; build-dep as assoc list (module-name . dependent-module-list)
+  ;; build-dep-from-file
+  ;; build-deps-from-files
+
+  ) 
+
+
 
 ;; TODO
 ;; (defun to-dot-format (module-deps)

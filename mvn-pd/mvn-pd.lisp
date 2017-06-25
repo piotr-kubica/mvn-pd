@@ -18,7 +18,7 @@
        (cdr (car elem))))
 
 (defun children? (elem)
-  "returns true if element contains children including value-elem? nodes"
+  "returns true if element contains children including value? nodes"
   (and (listp elem)
        (> (length elem) 1)))
 
@@ -27,12 +27,12 @@
        (cdr elem)))
 
 (defun children-elem? (elem)
-  "returns true if element contains children excluding value-elem? nodes"
+  "returns true if element contains children excluding value? nodes"
   (and (children? elem)
        (remove-if #'stringp (children elem))))
 
 (defun children-elem (elem)
-  "returns true if element contains children excluding value-elem? nodes"
+  "returns true if element contains children excluding value? nodes"
   (if (children? elem)
       (remove-if #'stringp (children elem))))
 
@@ -41,11 +41,16 @@
 	((listp elem) (car elem))
 	(t elem)))
 
-(defun value-elem? (elem)
+(defun value? (elem)
   "returns element containing element value excluding other nodes"
   (and (children? elem)
        (remove-if-not #'stringp (children elem))))
 
+(defun value (elem)
+  ;; TODO test
+  "returns element containing element value excluding other nodes"
+  (if (children? elem)
+      (remove-if-not #'stringp (children elem))))
 
 ;;; O(2^n) runtime - use xml event-based parser in next version ?
 (defun find-lxml-el (lxml el &key (eqfun #'equal) (max-nest (- 1)))
@@ -121,8 +126,8 @@
   "returns groupId-artifactId of pom module"
   (let* ((art-id-el (find-nested-el lxml '(:|project| :|artifactId|) ))
 	 (gr-id-el  (find-nested-el lxml '(:|project| :|groupId|) ))
-	 (art-id-name (mapcan #'value-elem? art-id-el))
-	 (gr-id-name  (mapcan #'value-elem? gr-id-el)))
+	 (art-id-name (mapcan #'value? art-id-el))
+	 (gr-id-name  (mapcan #'value? gr-id-el)))
     (when (and art-id-name
 	       (if gr-id
 		   gr-id-name
@@ -132,28 +137,36 @@
 			   (car gr-id-name))))))
 
 
-(defun find-dependencies (lxml &key (gr-id nil) (elem)
+(defun find-dependencies (lxml)
+  (find-nested-el lxml '(:|project| :|dependencies| :|dependency|)))
+
+
+(defun filter-dependencies (lxml p)
+  ;; TODO test
+  "filters elements from dependency list by predicate"
+  )
+				   
   "TODO"
   ;; optionally filters by predicate that returns matched artifactId's
   ;; (defun find-module-deps (lxml &optional filter-p)
   ;;   )
-				     ))
+;;  ))
 
 
-(defun match-value-elem-text (lxml regex)
-  "TODO"
-  ;; filters elements with value-elem? - function value-elem?
-  ;; filters values (see value-elem?)
-  )
+;; (defun match-value-elem-text (lxml regex)
+;;   "TODO"
+;;   ;; filters elements with value? - function value?
+;;   ;; filters values (see value?)
+;;   )
 
 
-(defun module-dependencies (lxml &key (gr-id nil))
-  "TODO"
-  ;; build-dep as assoc list (module-name . dependent-module-list)
-  ;; build-dep-from-file
-  ;; build-deps-from-files
+;; (defun module-dependencies (lxml &key (gr-id nil))
+;;   "TODO"
+;;   ;; build-dep as assoc list (module-name . dependent-module-list)
+;;   ;; build-dep-from-file
+;;   ;; build-deps-from-files
 
-  ) 
+;;   ) 
 
 
 

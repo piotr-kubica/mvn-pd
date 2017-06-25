@@ -21,7 +21,7 @@
   (is-false (mvn-pd::children-elem? '(:|vb| "text") ))
   (is-true (mvn-pd::children-elem? '((:|vb| :|atr| "a") "text" :|vc|) ))
   (is-true (mvn-pd::children-elem? '((:|vb| :|atr| "a") :|vc|) ))
-  (is-true (mvn-pd::children-elem? '(:|vb| :|vc|) ))) 
+  (is-true (mvn-pd::children-elem? '(:|vb| :|vc|) )))
 
 
 (test children-elem-test
@@ -122,16 +122,16 @@
 	     nil))
 
   (is (equal (find-nested-el '(:|b| (:|c| :|d|) :|e|) '(:|b| :|c|))
-	     '(:|d|)))
+	     '((:|c| :|d|)) ))
 
   (is (equal (find-nested-el +lxml+ '(:|d| :|c|))
-	     '(:|e|) ))
+	     '(((:|c| :|atr| "c") "text-c" :|e|)) ))
   
   (is (equal (find-nested-el +lxml+ '(:|r| :|d| :|c|))
-	     '(:|e|) ))
+	     '(((:|c| :|atr| "c") "text-c" :|e|)) ))
   
   (is (equal (find-nested-el +lxml+ '(:|r| :|c|))
-	     '(:|f| :|e|) )))
+	     '((:|c| "example" :|f|) ((:|c| :|atr| "c") "text-c" :|e|)) )))
 	
 
 (test find-lxml-el-integration-test
@@ -189,11 +189,7 @@
     		<modelVersion atr=\"a\" btr=\"b\">4.0.0</modelVersion>
     		<groupId>com.example</groupId>
     		<artifactId>examplePom</artifactId>
-    		<version>
-                    <va></va>
-                    <vb atr=\"a\">text</vb>
-                    <vb atr=\"a\">text <vc></vc></vb>
-                </version>
+    		<version>1.7.8</version>
 	<name>Maven Pom Example</name>
 	<dependencies>
 	        <dependency>
@@ -211,10 +207,37 @@
         </dependencies>
         </project>"))
 	 (lxml (s-xml:parse-xml sis)))
-    (print (find-module-name lxml))
-    (is (equal (find-module-name lxml)
-	       "examplePom"))
-    ))
+    (print (mvn-pd::find-dependencies lxml))
+    
+    (is (equal (mvn-pd::find-dependencies lxml)
+	       '((:|dependency|
+		  (:|groupId| "junit")
+		  (:|artifactId| "junit")
+		  (:|version| "4.8")
+		  (:|scope| "test"))
+		 (:|dependency|
+		  (:|groupId| "mockito")
+		  (:|artifactId| "mockito")
+		  (:|version| "1.9.2")
+		  (:|scope| "test"))) ))))
+
+(test filter-dependencies-test
+  (let ((dep '((:|dependency|
+	       (:|groupId| "junit")
+	       (:|artifactId| "junit")
+	       (:|version| "4.8")
+	       (:|scope| "test"))
+	      (:|dependency|
+	       (:|groupId| "mockito")
+	       (:|artifactId| "mockito")
+	       (:|version| "1.9.2")
+	       (:|scope| "test"))) ))
+    
+    (is (equal (mvn-pd::filter-dependencies dep #'(lambda (x) (equal x :|artifactId|)))
+	       '("junit" "mockito") ))
+
+  ;; TODO extend test cases
+  ))
 
 
 

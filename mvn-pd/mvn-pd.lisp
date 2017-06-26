@@ -137,39 +137,39 @@
 			   (car gr-id-name))))))
 
 
-(defun find-dependencies (lxml)
+(defun dependencies (lxml)
   (find-nested-el lxml '(:|project| :|dependencies| :|dependency|)))
 
 
-(defun filter-dependencies (lxml p)
-  ;; TODO test
-  "filters elements from dependency list by predicate"
+(defun module? (lxml)
+  "is moudle? = has parent section"
+  (find-nested-el lxml '(:|project| :|parent|)))
+
+
+(defun modules (lxml)
+  "returns dependent modules from parent pom as list"
+  (find-nested-el lxml '(:|project| :|modules| :|module|)))
+
+(defun module-dependency-list (lxml)
+  "returns all dependencies for this module as list"
+  ;; TODO assoc list (module . (dependencies))
   )
-				   
-  "TODO"
-  ;; optionally filters by predicate that returns matched artifactId's
-  ;; (defun find-module-deps (lxml &optional filter-p)
-  ;;   )
-;;  ))
 
+(defun project-module-list (lxml)
+  ;; TODO (parent artifactid . (modules))
+  )
 
-;; (defun match-value-elem-text (lxml regex)
-;;   "TODO"
-;;   ;; filters elements with value? - function value?
-;;   ;; filters values (see value?)
-;;   )
-
-
-;; (defun module-dependencies (lxml &key (gr-id nil))
-;;   "TODO"
-;;   ;; build-dep as assoc list (module-name . dependent-module-list)
-;;   ;; build-dep-from-file
-;;   ;; build-deps-from-files
-
-;;   ) 
+(defun project-module-dependencies (lxml)
+  ;; TODO
+  ;; combine...
+  ;; project-module-dependencies ...with...
+  ;; module-dependency-list
+    
+  "filters module dependencies by parent modules"
+  ;; mapcan (find elem list)
 
 
 
 ;; TODO
-;; (defun to-dot-format (module-deps)
+;; (defun to-dot-format (proj-dependencies)
 ;;   )

@@ -181,8 +181,7 @@
 	       "examplePom")) ))
 
 
-;; TODO test
-(test find-dependencies-integration-test
+(test dependencies-integration-test
   (let* ((sis (make-string-input-stream
 	       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
         <project xmlns=\"http://maven.apache.org/POM/4.0.0\">
@@ -209,7 +208,7 @@
 	 (lxml (s-xml:parse-xml sis)))
     (print (mvn-pd::find-dependencies lxml))
     
-    (is (equal (mvn-pd::find-dependencies lxml)
+    (is (equal (mvn-pd::dependencies lxml)
 	       '((:|dependency|
 		  (:|groupId| "junit")
 		  (:|artifactId| "junit")
@@ -221,23 +220,7 @@
 		  (:|version| "1.9.2")
 		  (:|scope| "test"))) ))))
 
-(test filter-dependencies-test
-  (let ((dep '((:|dependency|
-	       (:|groupId| "junit")
-	       (:|artifactId| "junit")
-	       (:|version| "4.8")
-	       (:|scope| "test"))
-	      (:|dependency|
-	       (:|groupId| "mockito")
-	       (:|artifactId| "mockito")
-	       (:|version| "1.9.2")
-	       (:|scope| "test"))) ))
-    
-    (is (equal (mvn-pd::filter-dependencies dep #'(lambda (x) (equal x :|artifactId|)))
-	       '("junit" "mockito") ))
-
-  ;; TODO extend test cases
-  ))
+  
 
 
 

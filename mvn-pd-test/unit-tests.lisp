@@ -220,7 +220,33 @@
 		  (:|version| "1.9.2")
 		  (:|scope| "test"))) ))))
 
-  
-
+ (test module-dependency-list-test
+  (let* ((sis (make-string-input-stream
+	       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+        <project xmlns=\"http://maven.apache.org/POM/4.0.0\">
+    		<modelVersion atr=\"a\" btr=\"b\">4.0.0</modelVersion>
+    		<groupId>com.example</groupId>
+    		<artifactId>examplePom</artifactId>
+    		<version>1.7.8</version>
+	<name>Maven Pom Example</name>
+	<dependencies>
+	        <dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8</version>
+			<scope>test</scope>
+		</dependency>
+	        <dependency>
+			<groupId>mockito</groupId>
+			<artifactId>mockito</artifactId>
+			<version>1.9.2</version>
+			<scope>test</scope>
+		</dependency>
+        </dependencies>
+        </project>"))
+	 (lxml (s-xml:parse-xml sis)))
+    (print (mvn-pd::find-dependencies lxml))
+    ;; TODO
+    ))
 
 

@@ -114,27 +114,20 @@
       (find-elems (find-offspring lxml (car elems))  (cdr elems)))))
 
 
-(defun dependency-name (art-id &optional gr-id)
+(defun dependency-name (art-id &optional gr-id-p)
   (when art-id
     (concatenate 'string
-		 (if gr-id
-		     (concatenate 'string gr-id "-"))
+		 (if gr-id-p
+		     (concatenate 'string gr-id-p "-"))
 		 art-id)))
 		     
 
-(defun find-module-name (lxml &key (gr-id nil))
-  "returns groupId-artifactId of pom module"
+(defun find-module-name (lxml)
+  "returns artifactId of pom module"
   (let* ((art-id-el (find-nested-el lxml '(:|project| :|artifactId|) ))
-	 (gr-id-el  (find-nested-el lxml '(:|project| :|groupId|) ))
-	 (art-id-name (mapcan #'value? art-id-el))
-	 (gr-id-name  (mapcan #'value? gr-id-el)))
-    (when (and art-id-name
-	       (if gr-id
-		   gr-id-name
-		   t))
-      (dependency-name (car art-id-name)
-		       (if gr-id
-			   (car gr-id-name))))))
+	 (art-id-name (mapcan #'value? art-id-el)))
+    (when art-id-name
+      (dependency-name (car art-id-name)))))
 
 
 (defun dependencies (lxml)
@@ -150,10 +143,10 @@
   "returns dependent modules from parent pom as list"
   (find-nested-el lxml '(:|project| :|modules| :|module|)))
 
+
 (defun module-dependency-list (lxml)
-  "returns all dependencies for this module as list"
-  ;; TODO assoc list (module . (dependencies))
-  )
+  "returns all dependencies for this module as assoc list"
+  (acons (find-module-name lxml) (dependencies lxml) '() ))
 
 (defun project-module-list (lxml)
   ;; TODO (parent artifactid . (modules))
@@ -168,6 +161,9 @@
   "filters module dependencies by parent modules"
   ;; mapcan (find elem list)
 
+  )
+
+  
 
 
 ;; TODO

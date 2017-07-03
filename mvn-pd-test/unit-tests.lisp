@@ -23,6 +23,13 @@
   (is-true (mvn-pd::children-elem? '((:|vb| :|atr| "a") :|vc|) ))
   (is-true (mvn-pd::children-elem? '(:|vb| :|vc|) )))
 
+;; TODO test for value
+;;
+;; MVN-PD-TEST> (MVN-PD::VALUE '(:|module| "../ModuleA"))
+;; "../ModuleA"
+;; MVN-PD-TEST> (MVN-PD::VALUE '(:|module|))
+;; NIL
+;; MVN-PD-TEST> (MVN-PD::VALUE '())
 
 (test children-elem-test
   (is (equal nil (mvn-pd::children-elem nil )))
@@ -150,39 +157,36 @@
 	       (find-lxml-el lxml :|Name|)))))
 
 
-(test find-module-name-integration-test
-  (let* ((sis (make-string-input-stream
-	       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-        <project xmlns=\"http://maven.apache.org/POM/4.0.0\">
-    		<modelVersion atr=\"a\" btr=\"b\">4.0.0</modelVersion>
-    		<groupId>com.example</groupId>
-    		<artifactId>examplePom</artifactId>
-    		<version>
-                    <va></va>
-                    <vb atr=\"a\">text</vb>
-                    <vb atr=\"a\">text <vc></vc></vb>
-                </version>
-	<name>Maven Pom Example</name>
+(defparameter *parent-lxml*
+  (s-xml:parse-xml
+   (make-string-input-stream
+    "<project xmlns=\"http://maven.apache.org/POM/4.0.0\">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.example</groupId>
+	<artifactId>parent-artifact</artifactId>
+	<packaging>pom</packaging>
+	<version>1.1.1</version>
+	<prerequisites>
+		<maven>3.2.1</maven>
+	</prerequisites>
+	<modules>
+	  <module>../ModuleA</module>
+   	  <module>../ModuleB</module>
+	  <module>../ModuleC</module>
+	</modules>
 	<dependencies>
-	        <dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.8</version>
-			<scope>test</scope>
-		</dependency>
-        </dependencies>
-        </project>"))
-	 (lxml (s-xml:parse-xml sis)))
+	  <dependency>
+	  <groupId>junit</groupId>
+	  <artifactId>junit</artifactId>
+	  <scope>test</scope>
+	  </dependency>
+	</dependencies>
+     </project>"
+    )))
 
-    (is (equal (find-module-name lxml :gr-id t)
-	       "com.example-examplePom"))
-
-    (is (equal (find-module-name lxml)
-	       "examplePom")) ))
-
-
-(test dependencies-integration-test
-  (let* ((sis (make-string-input-stream
+(defparameter *module-lxml*
+  (s-xml:parse-xml
+   (make-string-input-stream
 	       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
         <project xmlns=\"http://maven.apache.org/POM/4.0.0\">
     		<modelVersion atr=\"a\" btr=\"b\">4.0.0</modelVersion>
@@ -204,11 +208,15 @@
 			<scope>test</scope>
 		</dependency>
         </dependencies>
-        </project>"))
-	 (lxml (s-xml:parse-xml sis)))
-    (print (mvn-pd::find-dependencies lxml))
-    
-    (is (equal (mvn-pd::dependencies lxml)
+        </project>")))
+
+
+(test integration-tests
+  
+  (is (equal (mvn-pd::module-name *module-lxml*)
+	     "examplePom"))
+
+  (is (equal (mvn-pd::dependencies *module-lxml*)
 	       '((:|dependency|
 		  (:|groupId| "junit")
 		  (:|artifactId| "junit")
@@ -218,35 +226,27 @@
 		  (:|groupId| "mockito")
 		  (:|artifactId| "mockito")
 		  (:|version| "1.9.2")
-		  (:|scope| "test"))) ))))
+		  (:|scope| "test"))) ))
 
- (test module-dependency-list-test
-  (let* ((sis (make-string-input-stream
-	       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-        <project xmlns=\"http://maven.apache.org/POM/4.0.0\">
-    		<modelVersion atr=\"a\" btr=\"b\">4.0.0</modelVersion>
-    		<groupId>com.example</groupId>
-    		<artifactId>examplePom</artifactId>
-    		<version>1.7.8</version>
-	<name>Maven Pom Example</name>
-	<dependencies>
-	        <dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.8</version>
-			<scope>test</scope>
-		</dependency>
-	        <dependency>
-			<groupId>mockito</groupId>
-			<artifactId>mockito</artifactId>
-			<version>1.9.2</version>
-			<scope>test</scope>
-		</dependency>
-        </dependencies>
-        </project>"))
-	 (lxml (s-xml:parse-xml sis)))
-    (print (mvn-pd::find-dependencies lxml))
-    ;; TODO
-    ))
+  (is (equal (mvn-pd::module-dependency-list *module-lxml*)
+	     '("examplePom"
+	       (:|dependency|
+		  (:|groupId| "junit")
+		  (:|artifactId| "junit")
+		  (:|version| "4.8")
+		  (:|scope| "test"))
+		 (:|dependency|
+		  (:|groupId| "mockito")
+		  (:|artifactId| "mockito")
+		  (:|version| "1.9.2")
+		  (:|scope| "test"))) ))
+
+  (is (equal (mvn-pd::modules *parent-lxml*)
+	     '((:|module| "../ModuleA") (:|module| "../ModuleB") (:|module| "../ModuleC"))))
+      
+  (is (equal (mvn-pd::project-module-list *PARENT-LXML*)
+	     '("parent-artifact" "../ModuleA" "../ModuleB" "../ModuleC")))
+	     
+  )
 
 

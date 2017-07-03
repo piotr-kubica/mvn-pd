@@ -50,7 +50,7 @@
   ;; TODO test
   "returns element containing element value excluding other nodes"
   (if (children? elem)
-      (remove-if-not #'stringp (children elem))))
+      (car (remove-if-not #'stringp (children elem)))))
 
 ;;; O(2^n) runtime - use xml event-based parser in next version ?
 (defun find-lxml-el (lxml el &key (eqfun #'equal) (max-nest (- 1)))
@@ -122,7 +122,7 @@
 		 art-id)))
 		     
 
-(defun find-module-name (lxml)
+(defun module-name (lxml)
   "returns artifactId of pom module"
   (let* ((art-id-el (find-nested-el lxml '(:|project| :|artifactId|) ))
 	 (art-id-name (mapcan #'value? art-id-el)))
@@ -146,11 +146,13 @@
 
 (defun module-dependency-list (lxml)
   "returns all dependencies for this module as assoc list"
-  (acons (find-module-name lxml) (dependencies lxml) '() ))
+  `(,(module-name lxml) . ,(dependencies lxml)))
+
 
 (defun project-module-list (lxml)
-  ;; TODO (parent artifactid . (modules))
-  )
+  (let ((mod-val (mapcar #'value (modules lxml))))
+    `(,(module-name lxml) . ,mod-val)))
+
 
 (defun project-module-dependencies (lxml)
   ;; TODO

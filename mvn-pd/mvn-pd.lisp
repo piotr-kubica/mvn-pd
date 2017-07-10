@@ -140,8 +140,14 @@
 
 
 (defun modules (lxml)
-  "returns dependent modules from parent pom as list"
-  (find-nested-el lxml '(:|project| :|modules| :|module|)))
+  "returns dependent raw module names from parent pom as list"
+  (find-nested-el lxml '(:|project| :|modules| :|module|))
+  ;; TODO
+  ;; extract value
+  ;; ex. (file-namestring (pathname "~/hello woeld/file.text"))
+  ;; returns "file.text"
+  ;; path to name
+)
 
 
 (defun module-dependency-list (lxml)
@@ -151,10 +157,13 @@
 
 (defun project-module-list (lxml)
   (let ((mod-val (mapcar #'value (modules lxml))))
+    ;; here module name is project parent module name
     `(,(module-name lxml) . ,mod-val)))
 
 
 (defun project-module-dependencies (lxml)
+  ;; remove :|dependency| and :|module|
+
   ;; TODO
   ;; combine...
   ;; project-module-dependencies ...with...

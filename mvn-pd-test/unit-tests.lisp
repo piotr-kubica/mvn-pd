@@ -2,7 +2,59 @@
 
 (in-package :mvn-pd-test)
 
-;; TODO move all  example data to top
+
+(defparameter *parent-lxml*
+  (s-xml:parse-xml
+   (make-string-input-stream
+    "<project xmlns=\"http://maven.apache.org/POM/4.0.0\">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.example</groupId>
+	<artifactId>parent-artifact</artifactId>
+	<packaging>pom</packaging>
+	<version>1.1.1</version>
+	<prerequisites>
+		<maven>3.2.1</maven>
+	</prerequisites>
+	<modules>
+	  <module>../ModuleA</module>
+   	  <module>../ModuleB</module>
+	  <module>../ModuleC</module>
+	</modules>
+	<dependencies>
+	  <dependency>
+	  <groupId>junit</groupId>
+	  <artifactId>junit</artifactId>
+	  <scope>test</scope>
+	  </dependency>
+	</dependencies>
+     </project>"
+    )))
+
+(defparameter *module-lxml*
+  (s-xml:parse-xml
+   (make-string-input-stream
+	       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+        <project xmlns=\"http://maven.apache.org/POM/4.0.0\">
+    		<modelVersion atr=\"a\" btr=\"b\">4.0.0</modelVersion>
+    		<groupId>com.example</groupId>
+    		<artifactId>examplePom</artifactId>
+    		<version>1.7.8</version>
+	<name>Maven Pom Example</name>
+	<dependencies>
+	        <dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8</version>
+			<scope>test</scope>
+		</dependency>
+	        <dependency>
+			<groupId>mockito</groupId>
+			<artifactId>mockito</artifactId>
+			<version>1.9.2</version>
+			<scope>test</scope>
+		</dependency>
+        </dependencies>
+        </project>")))
 
 
 (test keyword->str-test
@@ -157,96 +209,52 @@
 	       (find-lxml-el lxml :|Name|)))))
 
 
-(defparameter *parent-lxml*
-  (s-xml:parse-xml
-   (make-string-input-stream
-    "<project xmlns=\"http://maven.apache.org/POM/4.0.0\">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.example</groupId>
-	<artifactId>parent-artifact</artifactId>
-	<packaging>pom</packaging>
-	<version>1.1.1</version>
-	<prerequisites>
-		<maven>3.2.1</maven>
-	</prerequisites>
-	<modules>
-	  <module>../ModuleA</module>
-   	  <module>../ModuleB</module>
-	  <module>../ModuleC</module>
-	</modules>
-	<dependencies>
-	  <dependency>
-	  <groupId>junit</groupId>
-	  <artifactId>junit</artifactId>
-	  <scope>test</scope>
-	  </dependency>
-	</dependencies>
-     </project>"
-    )))
-
-(defparameter *module-lxml*
-  (s-xml:parse-xml
-   (make-string-input-stream
-	       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-        <project xmlns=\"http://maven.apache.org/POM/4.0.0\">
-    		<modelVersion atr=\"a\" btr=\"b\">4.0.0</modelVersion>
-    		<groupId>com.example</groupId>
-    		<artifactId>examplePom</artifactId>
-    		<version>1.7.8</version>
-	<name>Maven Pom Example</name>
-	<dependencies>
-	        <dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.8</version>
-			<scope>test</scope>
-		</dependency>
-	        <dependency>
-			<groupId>mockito</groupId>
-			<artifactId>mockito</artifactId>
-			<version>1.9.2</version>
-			<scope>test</scope>
-		</dependency>
-        </dependencies>
-        </project>")))
-
-
 (test integration-tests
   
   (is (equal (mvn-pd::module-name *module-lxml*)
 	     "examplePom"))
 
   (is (equal (mvn-pd::dependencies *module-lxml*)
-	       '((:|dependency|
-		  (:|groupId| "junit")
-		  (:|artifactId| "junit")
-		  (:|version| "4.8")
-		  (:|scope| "test"))
-		 (:|dependency|
-		  (:|groupId| "mockito")
-		  (:|artifactId| "mockito")
-		  (:|version| "1.9.2")
-		  (:|scope| "test"))) ))
+             '((:|dependency|
+                (:|groupId| "junit")
+                (:|artifactId| "junit")
+                (:|version| "4.8")
+                (:|scope| "test"))
+               (:|dependency|
+                (:|groupId| "mockito")
+                (:|artifactId| "mockito")
+                (:|version| "1.9.2")
+                (:|scope| "test"))) ))
 
   (is (equal (mvn-pd::module-dependency-list *module-lxml*)
 	     '("examplePom"
 	       (:|dependency|
-		  (:|groupId| "junit")
-		  (:|artifactId| "junit")
-		  (:|version| "4.8")
-		  (:|scope| "test"))
-		 (:|dependency|
-		  (:|groupId| "mockito")
-		  (:|artifactId| "mockito")
-		  (:|version| "1.9.2")
-		  (:|scope| "test"))) ))
+                (:|groupId| "junit")
+                (:|artifactId| "junit")
+                (:|version| "4.8")
+                (:|scope| "test"))
+               (:|dependency|
+                (:|groupId| "mockito")
+                (:|artifactId| "mockito")
+                (:|version| "1.9.2")
+                (:|scope| "test"))) ))
 
   (is (equal (mvn-pd::modules *parent-lxml*)
-	     '((:|module| "../ModuleA") (:|module| "../ModuleB") (:|module| "../ModuleC"))))
+	     '("ModuleA" "ModuleB" "ModuleC")))
       
-  (is (equal (mvn-pd::project-module-list *PARENT-LXML*)
-	     '("parent-artifact" "../ModuleA" "../ModuleB" "../ModuleC")))
+  (is (equal (mvn-pd::project-module-list *parent-lxml*)
+	     '("parent-artifact" "ModuleA" "ModuleB" "ModuleC")))
 	     
-  )
-
-
+  (is (equal (mvn-pd::project-module-dependencies *parent-lxml*)
+             '(("parent-artifact")
+               ("../ModuleA" . (((:|groupId| "junit")
+                                 (:|artifactId| "junit")
+                                 (:|version| "4.8")
+                                 (:|scope| "test"))
+                                ((:|groupId| "com.example")
+                                 (:|artifactId| "ModuleB")
+                                 (:|version| "1.0"))))
+               ("../ModuleB" . (((:|groupId| "com.example")
+                                 (:|artifactId| "ModuleC")
+                                 (:|version| "1.0"))))
+               ("../ModuleC" . '() )))))

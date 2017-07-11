@@ -2,6 +2,8 @@
 
 (in-package :mvn-pd-test)
 
+(defun is-equal (a b)
+  (is (equal a b)))
 
 (defparameter *parent-lxml*
   (s-xml:parse-xml
@@ -33,7 +35,7 @@
 (defparameter *module-lxml*
   (s-xml:parse-xml
    (make-string-input-stream
-	       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
         <project xmlns=\"http://maven.apache.org/POM/4.0.0\">
     		<modelVersion atr=\"a\" btr=\"b\">4.0.0</modelVersion>
     		<groupId>com.example</groupId>
@@ -59,12 +61,12 @@
 
 (test keyword->str-test
   "keyword->str coerces keyword to string"
-  (is (equal nil (mvn-pd::keyword->str "test" )))
-  (is (equal "test" (mvn-pd::keyword->str :|test| )))
-  (is (equal "Test" (mvn-pd::keyword->str :|Test| )))
-  (is (equal "TEST" (mvn-pd::keyword->str :test )))
-  (is (equal "TEST" (mvn-pd::keyword->str :Test )))
-  (is (equal "TEST" (mvn-pd::keyword->str ':|TEST| ))))
+  (is-equal nil (mvn-pd::keyword->str "test" ))
+  (is-equal "test" (mvn-pd::keyword->str :|test| ))
+  (is-equal "Test" (mvn-pd::keyword->str :|Test| ))
+  (is-equal "TEST" (mvn-pd::keyword->str :test ))
+  (is-equal "TEST" (mvn-pd::keyword->str :Test ))
+  (is-equal "TEST" (mvn-pd::keyword->str ':|TEST| )))
 
 (test children-elem?-test
   (is-false (mvn-pd::children-elem? nil ))
@@ -84,13 +86,13 @@
 ;; MVN-PD-TEST> (MVN-PD::VALUE '())
 
 (test children-elem-test
-  (is (equal nil (mvn-pd::children-elem nil )))
-  (is (equal nil (mvn-pd::children-elem :|a| )))
-  (is (equal nil (mvn-pd::children-elem '((:|a| :|atr| "a") "text") )))
-  (is (equal nil (mvn-pd::children-elem '(:|a| "text") )))
-  (is (equal '(:|c|) (mvn-pd::children-elem '((:|a| :|atr| "a") "text" :|c|) )))
-  (is (equal '(:|c|) (mvn-pd::children-elem '((:|b| :|atr| "a") :|c|) )))
-  (is (equal '((:|c| :|d|) :|e|) (mvn-pd::children-elem '(:|b| (:|c| :|d|) :|e|) ))))
+  (is-equal nil (mvn-pd::children-elem nil ))
+  (is-equal nil (mvn-pd::children-elem :|a| ))
+  (is-equal nil (mvn-pd::children-elem '((:|a| :|atr| "a") "text") ))
+  (is-equal nil (mvn-pd::children-elem '(:|a| "text") ))
+  (is-equal '(:|c|) (mvn-pd::children-elem '((:|a| :|atr| "a") "text" :|c|) ))
+  (is-equal '(:|c|) (mvn-pd::children-elem '((:|b| :|atr| "a") :|c|) ))
+  (is-equal '((:|c| :|d|) :|e|) (mvn-pd::children-elem '(:|b| (:|c| :|d|) :|e|) )))
 
 
 ;; setup common data for lxml tests
@@ -112,85 +114,84 @@
 
 (test data-lxml-test
   (is-true (input-stream-p +sis+))
-  (is (equal
-       +lxml+ 
-       '((:|r| :|ns| "http://maven.apache.org/POM/4.0.0")
-	 ((:|a| :|atr1| "a" :|atr2| "b") "text")
-	 :|b|
-	 (:|c| "example" :|f|)
-	 (:|d|
-	  ((:|b| :|atr| "b") "text-b")
-	  ((:|c| :|atr| "c") "text-c"
-	   :|e|)
-	  :|d|))))
+  (is-equal +lxml+ 
+            '((:|r| :|ns| "http://maven.apache.org/POM/4.0.0")
+              ((:|a| :|atr1| "a" :|atr2| "b") "text")
+              :|b|
+              (:|c| "example" :|f|)
+              (:|d|
+               ((:|b| :|atr| "b") "text-b")
+               ((:|c| :|atr| "c") "text-c"
+                :|e|)
+               :|d|)))
   (print +lxml+))
 
 
 (test find-lxml-el-test
-    (is (equal nil (find-lxml-el +lxml+ :|notexisting|)))
-    (is (equal nil (find-lxml-el nil :|r|)))
+    (is-equal nil (find-lxml-el +lxml+ :|notexisting|))
+    (is-equal nil (find-lxml-el nil :|r|))
 
-    (is (equal (find-lxml-el +lxml+ :|a|)
-	       '(((:|a| :|atr1| "a" :|atr2| "b") "text"))))
+    (is-equal (find-lxml-el +lxml+ :|a|)
+              '(((:|a| :|atr1| "a" :|atr2| "b") "text")))
     
-    (is (equal (find-lxml-el +lxml+ :|b|)
-	       '(((:|b| :|atr| "b") "text-b") :|b|)))
+    (is-equal (find-lxml-el +lxml+ :|b|)
+              '(((:|b| :|atr| "b") "text-b") :|b|))
     
-    (is (equal (find-lxml-el +lxml+ :|b| :max-nest 1)
-	       '(:|b|)))
+    (is-equal (find-lxml-el +lxml+ :|b| :max-nest 1)
+              '(:|b|))
 
-    (is (equal (find-lxml-el +lxml+ :|b| :max-nest 0)
-	       nil))
+    (is-equal (find-lxml-el +lxml+ :|b| :max-nest 0)
+              nil)
     
-    (is (equal (find-lxml-el +lxml+ :|e|)
-	       '(:|e|)))
+    (is-equal (find-lxml-el +lxml+ :|e|)
+              '(:|e|))
     
-    (is (equal (find-lxml-el +lxml+ :|atr|)
-	       nil)))
+    (is-equal (find-lxml-el +lxml+ :|atr|)
+              nil))
 
 
 (test find-lxml-el-children
-  (is (equal (mvn-pd::find-lxml-el-children +lxml+ :|a|)
-	     nil))
+  (is-equal (mvn-pd::find-lxml-el-children +lxml+ :|a|)
+            nil)
     
-  (is (equal (mvn-pd::find-lxml-el-children +lxml+ :|b|)
-	     nil))
+  (is-equal (mvn-pd::find-lxml-el-children +lxml+ :|b|)
+            nil)
 
-  (is (equal (mvn-pd::find-lxml-el-children +lxml+ :|c|)
-	     '(:|e| :|f|) ))
+  (is-equal (mvn-pd::find-lxml-el-children +lxml+ :|c|)
+            '(:|e| :|f|) )
 
-  (is (equal (mvn-pd::find-lxml-el-children '(:|b| (:|c| :|d|) :|e|) :|b|)
-	     '((:|c| :|d|) :|e| )))
+  (is-equal (mvn-pd::find-lxml-el-children '(:|b| (:|c| :|d|) :|e|) :|b|)
+            '((:|c| :|d|) :|e| ))
 
-  (is (equal (mvn-pd::find-lxml-el-children +lxml+ nil)
-	     nil))
+  (is-equal (mvn-pd::find-lxml-el-children +lxml+ nil)
+            nil)
 
-  (is (equal (mvn-pd::find-lxml-el-children +lxml+ :|notExisting|)
-	     nil))
+  (is-equal (mvn-pd::find-lxml-el-children +lxml+ :|notExisting|)
+            nil)
 
-  (is (equal (mvn-pd::find-lxml-el-children +lxml+ :|c| :max-nest 1)
-	     '(:|f|) )))
+  (is-equal (mvn-pd::find-lxml-el-children +lxml+ :|c| :max-nest 1)
+            '(:|f|) ))
 
 
 (test find-nested-el-test
 
-  (is (equal (find-nested-el nil '(:|b| :|c|))
-	     nil))
+  (is-equal (find-nested-el nil '(:|b| :|c|))
+            nil)
 
-  (is (equal (find-nested-el +lxml+ nil)
-	     nil))
+  (is-equal (find-nested-el +lxml+ nil)
+            nil)
 
-  (is (equal (find-nested-el '(:|b| (:|c| :|d|) :|e|) '(:|b| :|c|))
-	     '((:|c| :|d|)) ))
+  (is-equal (find-nested-el '(:|b| (:|c| :|d|) :|e|) '(:|b| :|c|))
+            '((:|c| :|d|)) )
 
-  (is (equal (find-nested-el +lxml+ '(:|d| :|c|))
-	     '(((:|c| :|atr| "c") "text-c" :|e|)) ))
+  (is-equal (find-nested-el +lxml+ '(:|d| :|c|))
+            '(((:|c| :|atr| "c") "text-c" :|e|)) )
   
-  (is (equal (find-nested-el +lxml+ '(:|r| :|d| :|c|))
-	     '(((:|c| :|atr| "c") "text-c" :|e|)) ))
+  (is-equal (find-nested-el +lxml+ '(:|r| :|d| :|c|))
+            '(((:|c| :|atr| "c") "text-c" :|e|)) )
   
-  (is (equal (find-nested-el +lxml+ '(:|r| :|c|))
-	     '((:|c| "example" :|f|) ((:|c| :|atr| "c") "text-c" :|e|)) )))
+  (is-equal (find-nested-el +lxml+ '(:|r| :|c|))
+            '((:|c| "example" :|f|) ((:|c| :|atr| "c") "text-c" :|e|)) ))
 	
 
 (test find-lxml-el-integration-test
@@ -203,58 +204,61 @@
 	(lxml (s-xml:parse-xml sis)))
     (is-true (input-stream-p sis))
     ;; (print lxml)
-    (is (equal '((:|name| "Maven Pom Example 2") (:|name| "Maven Pom Example"))
-	       (find-lxml-el lxml :|name|)))
-    (is (equal nil
-	       (find-lxml-el lxml :|Name|)))))
+    (is-equal '((:|name| "Maven Pom Example 2") (:|name| "Maven Pom Example"))
+              (find-lxml-el lxml :|name|))
+    (is-equal nil
+              (find-lxml-el lxml :|Name|))))
 
 
 (test integration-tests
   
-  (is (equal (mvn-pd::module-name *module-lxml*)
-	     "examplePom"))
+  (is-equal (mvn-pd::module-name *module-lxml*)
+            "examplePom")
 
-  (is (equal (mvn-pd::dependencies *module-lxml*)
-             '((:|dependency|
-                (:|groupId| "junit")
-                (:|artifactId| "junit")
-                (:|version| "4.8")
-                (:|scope| "test"))
-               (:|dependency|
-                (:|groupId| "mockito")
-                (:|artifactId| "mockito")
-                (:|version| "1.9.2")
-                (:|scope| "test"))) ))
+  (is-equal (mvn-pd::dependencies *module-lxml*)
+            '((:|dependency|
+               (:|groupId| "junit")
+               (:|artifactId| "junit")
+               (:|version| "4.8")
+               (:|scope| "test"))
+              (:|dependency|
+               (:|groupId| "mockito")
+               (:|artifactId| "mockito")
+               (:|version| "1.9.2")
+               (:|scope| "test"))) )
 
-  (is (equal (mvn-pd::module-dependency-list *module-lxml*)
-	     '("examplePom"
-	       (:|dependency|
-                (:|groupId| "junit")
-                (:|artifactId| "junit")
-                (:|version| "4.8")
-                (:|scope| "test"))
-               (:|dependency|
-                (:|groupId| "mockito")
-                (:|artifactId| "mockito")
-                (:|version| "1.9.2")
-                (:|scope| "test"))) ))
+  (is-equal (mvn-pd::module-dependency-list *module-lxml*)
+            '("examplePom"
+              (:|dependency|
+               (:|groupId| "junit")
+               (:|artifactId| "junit")
+               (:|version| "4.8")
+               (:|scope| "test"))
+              (:|dependency|
+               (:|groupId| "mockito")
+               (:|artifactId| "mockito")
+               (:|version| "1.9.2")
+               (:|scope| "test"))) )
 
-  (is (equal (mvn-pd::modules *parent-lxml*)
-	     '("ModuleA" "ModuleB" "ModuleC")))
+  (is-equal (mvn-pd::modules *parent-lxml*)
+            '("ModuleA" "ModuleB" "ModuleC"))
       
-  (is (equal (mvn-pd::project-module-list *parent-lxml*)
-	     '("parent-artifact" "ModuleA" "ModuleB" "ModuleC")))
+  (is-equal (mvn-pd::project-module-list *parent-lxml*)
+            '("parent-artifact" "ModuleA" "ModuleB" "ModuleC"))
 	     
-  (is (equal (mvn-pd::project-module-dependencies *parent-lxml*)
-             '(("parent-artifact")
-               ("../ModuleA" . (((:|groupId| "junit")
-                                 (:|artifactId| "junit")
-                                 (:|version| "4.8")
-                                 (:|scope| "test"))
-                                ((:|groupId| "com.example")
-                                 (:|artifactId| "ModuleB")
-                                 (:|version| "1.0"))))
-               ("../ModuleB" . (((:|groupId| "com.example")
-                                 (:|artifactId| "ModuleC")
-                                 (:|version| "1.0"))))
-               ("../ModuleC" . '() )))))
+  (is-equal (mvn-pd::project-module-dependencies *parent-lxml*)
+            '(("parent-artifact")
+              ("../ModuleA" . (((:|groupId| "junit")
+                                (:|artifactId| "junit")
+                                (:|version| "4.8")
+                                (:|scope| "test"))
+                               ((:|groupId| "com.example")
+                                (:|artifactId| "ModuleB")
+                                (:|version| "1.0"))))
+              ("../ModuleB" . (((:|groupId| "com.example")
+                                (:|artifactId| "ModuleC")
+                                (:|version| "1.0"))))
+              ("../ModuleC" . '() )))
+
+
+)

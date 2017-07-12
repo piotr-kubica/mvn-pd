@@ -5,6 +5,8 @@
 (defun is-equal (a b)
   (is (equal a b)))
 
+(setf s-xml:*ignore-namespaces* t)
+
 (defparameter *parent-lxml*
   (s-xml:parse-xml
    (make-string-input-stream
@@ -77,13 +79,10 @@
   (is-true (mvn-pd::children-elem? '((:|vb| :|atr| "a") :|vc|) ))
   (is-true (mvn-pd::children-elem? '(:|vb| :|vc|) )))
 
-;; TODO test for value
-;;
-;; MVN-PD-TEST> (MVN-PD::VALUE '(:|module| "../ModuleA"))
-;; "../ModuleA"
-;; MVN-PD-TEST> (MVN-PD::VALUE '(:|module|))
-;; NIL
-;; MVN-PD-TEST> (MVN-PD::VALUE '())
+(test value-test
+      (is-equal "elem value" (mvn-pd::value '(:|elem| "elem value")))
+      (is-equal nil (mvn-pd::value '(:|elem|)))
+      (is-equal nil (mvn-pd::value '())))
 
 (test children-elem-test
   (is-equal nil (mvn-pd::children-elem nil ))

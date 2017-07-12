@@ -34,6 +34,8 @@
      </project>"
     )))
 
+;; TODO lxml modules:  ModuleA ModuleB ModuleC
+
 (defparameter *module-lxml*
   (s-xml:parse-xml
    (make-string-input-stream
@@ -215,29 +217,25 @@
             "examplePom")
 
   (is-equal (mvn-pd::dependencies *module-lxml*)
-            '((:|dependency|
-               (:|groupId| "junit")
+            '(((:|groupId| "junit")
                (:|artifactId| "junit")
                (:|version| "4.8")
                (:|scope| "test"))
-              (:|dependency|
-               (:|groupId| "mockito")
+              ((:|groupId| "mockito")
                (:|artifactId| "mockito")
                (:|version| "1.9.2")
                (:|scope| "test"))) )
 
   (is-equal (mvn-pd::module-dependency-list *module-lxml*)
             '("examplePom"
-              (:|dependency|
-               (:|groupId| "junit")
+              ((:|groupId| "junit")
                (:|artifactId| "junit")
                (:|version| "4.8")
                (:|scope| "test"))
-              (:|dependency|
-               (:|groupId| "mockito")
+              ((:|groupId| "mockito")
                (:|artifactId| "mockito")
                (:|version| "1.9.2")
-               (:|scope| "test"))) )
+               (:|scope| "test"))))
 
   (is-equal (mvn-pd::modules *parent-lxml*)
             '("ModuleA" "ModuleB" "ModuleC"))
@@ -245,19 +243,47 @@
   (is-equal (mvn-pd::project-module-list *parent-lxml*)
             '("parent-artifact" "ModuleA" "ModuleB" "ModuleC"))
 	     
-  (is-equal (mvn-pd::project-module-dependencies *parent-lxml*)
-            '(("parent-artifact")
-              ("../ModuleA" . (((:|groupId| "junit")
-                                (:|artifactId| "junit")
-                                (:|version| "4.8")
-                                (:|scope| "test"))
-                               ((:|groupId| "com.example")
-                                (:|artifactId| "ModuleB")
-                                (:|version| "1.0"))))
-              ("../ModuleB" . (((:|groupId| "com.example")
-                                (:|artifactId| "ModuleC")
-                                (:|version| "1.0"))))
-              ("../ModuleC" . '() )))
+  (is-equal (mvn-pd::project-dependencies *parent-lxml*)
+            '("parent-artifact"
+              ("ModuleA" . (((:|groupId| "junit")
+                             (:|artifactId| "junit")
+                             (:|version| "4.8")
+                             (:|scope| "test"))
+                            ((:|groupId| "com.example")
+                             (:|artifactId| "ModuleB")
+                             (:|version| "1.0"))))
+              ("ModuleB" . (((:|groupId| "com.example")
+                             (:|artifactId| "ModuleC")
+                             (:|version| "1.0"))))
+              ("ModuleC" . '() )))
 
+  ;; shows only dependencies between modules
+  (is-equal (mvn-pd::project-module-dependencies *parent-lxml*)
+            '("parent-artifact"
+              ("ModuleA" . (((:|groupId| "com.example")
+                             (:|artifactId| "ModuleB")
+                             (:|version| "1.0"))
+                            ((:|groupId| "com.example")
+                             (:|artifactId| "ModuleC")
+                             (:|version| "1.0"))))
+              ("ModuleB" . (((:|groupId| "com.example")
+                             (:|artifactId| "ModuleC")
+                             (:|version| "1.0"))))
+              ("ModuleC" . '() )))
+
+  (is-equal (mvn-pd::to-dot-format-test *project-dependencies*)
+            ;; TODO graphviz dot file
+            ;; digraph
+            ;; http://www.graphviz.org/content/dot-language
+            ;; http://graphs.grevian.org/example
+
+            ;; digraph {
+            ;;   a -> b;
+            ;;   b -> c;
+            ;;   c -> d;
+            ;;   d -> a;
+            ;; }
+	
+            )
 
 )

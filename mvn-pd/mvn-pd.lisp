@@ -175,6 +175,7 @@
   )
 
   
-;; TODO
-;; (defun to-dot-format (proj-dependencies)
-;;   )
+(defun to-dot-format (proj-dependencies)
+  ;; TODO
+  )
+ 

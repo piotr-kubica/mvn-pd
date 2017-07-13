@@ -271,19 +271,16 @@
                              (:|version| "1.0"))))
               ("ModuleC" . '() )))
 
+  ;;  digraph { label="parent-artifact";
+  ;;      ModuleA -> ModuleB; 
+  ;;      ModuleA -> ModuleC; 
+  ;;      ModuleB -> ModuleC;
+  ;;  }
   (is-equal (mvn-pd::to-dot-format-test *project-dependencies*)
+            "digraph{label=\"parent-artifact\";ModuleA->ModuleB;ModuleA->ModuleC;ModuleB->ModuleC;}")
+
             ;; TODO graphviz dot file
             ;; digraph
             ;; http://www.graphviz.org/content/dot-language
             ;; http://graphs.grevian.org/example
-
-            ;; digraph {
-            ;;   a -> b;
-            ;;   b -> c;
-            ;;   c -> d;
-            ;;   d -> a;
-            ;; }
-	
-            )
-
-)
+  )

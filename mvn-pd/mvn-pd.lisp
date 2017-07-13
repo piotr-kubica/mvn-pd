@@ -161,7 +161,9 @@
     `(,(module-name lxml) . ,mod-val)))
 
 
-(defun project-module-dependencies (lxml)
+(defun project-module-dependencies (lxml dependency-list)
+  "dependency-list contains structure of already computed dependencies"
+
   ;; remove :|dependency| and :|module|
 
   ;; TODO
@@ -178,4 +180,9 @@
 (defun to-dot-format (proj-dependencies)
   ;; TODO
   )
+
+(defun project-dependencies-dot (pom-file-list)
+;; process each file in list to output dependency-list and combine them all
+;; finaly save to dot file
+    )
  

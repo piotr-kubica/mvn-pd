@@ -23,6 +23,7 @@
 	  <module>../ModuleA</module>
    	  <module>../ModuleB</module>
 	  <module>../ModuleC</module>
+	  <module></module>
 	</modules>
 	<dependencies>
 	  <dependency>
@@ -62,6 +63,20 @@
         </dependencies>
         </project>")))
 
+(test remove-white-char-test
+  ;; new line
+  (is-equal (mvn-pd::remove-white-char "a b 
+	  c") "abc")
+  ;; space
+  (is-equal (mvn-pd::remove-white-char " a b  c") "abc")
+
+  (is-equal 
+   (mvn-pd::remove-white-char "digraph { label=\"parent-artifact\";
+       ModuleA -> ModuleB; 
+       ModuleA -> ModuleC; 
+       ModuleB -> ModuleC;
+    }")
+   "digraph{label=\"parent-artifact\";ModuleA->ModuleB;ModuleA->ModuleC;ModuleB->ModuleC;}"))
 
 (test keyword->str-test
   "keyword->str coerces keyword to string"
@@ -195,7 +210,7 @@
             '((:|c| "example" :|f|) ((:|c| :|atr| "c") "text-c" :|e|)) ))
 	
 
-(test find-lxml-el-integration-test
+(test find-lxml-el-test
   (let* ((sis (make-string-input-stream
        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
         <project>
@@ -211,11 +226,11 @@
               (find-lxml-el lxml :|Name|))))
 
 
-(test integration-tests
-  
+(test module-name-test
   (is-equal (mvn-pd::module-name *module-lxml*)
-            "examplePom")
+            "examplePom"))
 
+(test depenencies-test
   (is-equal (mvn-pd::dependencies *module-lxml*)
             '(((:|groupId| "junit")
                (:|artifactId| "junit")
@@ -224,8 +239,9 @@
               ((:|groupId| "mockito")
                (:|artifactId| "mockito")
                (:|version| "1.9.2")
-               (:|scope| "test"))) )
+               (:|scope| "test")))))
 
+(test module-dependencies-list-test
   (is-equal (mvn-pd::module-dependency-list *module-lxml*)
             '("examplePom"
               ((:|groupId| "junit")
@@ -235,14 +251,17 @@
               ((:|groupId| "mockito")
                (:|artifactId| "mockito")
                (:|version| "1.9.2")
-               (:|scope| "test"))))
+               (:|scope| "test")))))
 
+(test modules-test  
   (is-equal (mvn-pd::modules *parent-lxml*)
-            '("ModuleA" "ModuleB" "ModuleC"))
+            '("ModuleA" "ModuleB" "ModuleC")))
       
+(test project-module-list-test
   (is-equal (mvn-pd::project-module-list *parent-lxml*)
-            '("parent-artifact" "ModuleA" "ModuleB" "ModuleC"))
+            '("parent-artifact" "ModuleA" "ModuleB" "ModuleC")))
 	     
+(test project-dependencies
   (is-equal (mvn-pd::project-dependencies *parent-lxml*)
             '("parent-artifact"
               ("ModuleA" . (((:|groupId| "junit")
@@ -255,9 +274,10 @@
               ("ModuleB" . (((:|groupId| "com.example")
                              (:|artifactId| "ModuleC")
                              (:|version| "1.0"))))
-              ("ModuleC" . '() )))
+              ("ModuleC" . '() ))))
 
-  ;; shows only dependencies between modules
+;; shows only dependencies between modules
+(test project-module-dependencies-test  
   (is-equal (mvn-pd::project-module-dependencies *parent-lxml*)
             '("parent-artifact"
               ("ModuleA" . (((:|groupId| "com.example")
@@ -269,18 +289,22 @@
               ("ModuleB" . (((:|groupId| "com.example")
                              (:|artifactId| "ModuleC")
                              (:|version| "1.0"))))
-              ("ModuleC" . '() )))
+              ("ModuleC" . '() ))))
 
   ;;  digraph { label="parent-artifact";
   ;;      ModuleA -> ModuleB; 
   ;;      ModuleA -> ModuleC; 
   ;;      ModuleB -> ModuleC;
   ;;  }
-  (is-equal (mvn-pd::to-dot-format-test *project-dependencies*)
-            "digraph{label=\"parent-artifact\";ModuleA->ModuleB;ModuleA->ModuleC;ModuleB->ModuleC;}")
+
+(defparameter *project-dependencies* "todo!")
+
+(test to-dot-format-test
+  (is-equal (mvn-pd::to-dot-format *project-dependencies*)
+            "digraph{label=\"parent-artifact\";ModuleA->ModuleB;ModuleA->ModuleC;ModuleB->ModuleC;}"))
 
             ;; TODO graphviz dot file
             ;; digraph
             ;; http://www.graphviz.org/content/dot-language
             ;; http://graphs.grevian.org/example
-  )
+  

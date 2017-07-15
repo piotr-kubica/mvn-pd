@@ -3,6 +3,15 @@
 
 (in-package :mvn-pd)
 
+(defun remove-white-char (s)
+  (let ((chars (coerce s 'list))
+        (white-chars '(#\Space #\Newline #\Backspace #\Tab 
+                       #\Linefeed #\Page #\Return #\Rubout)))
+    (coerce (mapcan 
+             (lambda (c) (and (not (find c white-chars)) 
+                              (list c))) 
+             chars) 
+            'string)))
 
 (defun keyword->str (kw)
   "converts keyword to string"
@@ -141,13 +150,14 @@
 
 (defun modules (lxml)
   "returns dependent raw module names from parent pom as list"
-  (find-nested-el lxml '(:|project| :|modules| :|module|))
-  ;; TODO
-  ;; extract value
-  ;; ex. (file-namestring (pathname "~/hello woeld/file.text"))
-  ;; returns "file.text"
-  ;; path to name
-)
+  (let* ((mods (find-nested-el lxml '(:|project| :|modules| :|module|)))
+         (mod-names (mapcan 
+                     (lambda (m) (and 
+                                  (value m) 
+                                  (list (value m)))) 
+                     mods)))
+    (mapcar (lambda (m) (file-namestring (pathname m)))
+            mod-names)))
 
 
 (defun module-dependency-list (lxml)
@@ -156,9 +166,8 @@
 
 
 (defun project-module-list (lxml)
-  (let ((mod-val (mapcar #'value (modules lxml))))
-    ;; here module name is project parent module name
-    `(,(module-name lxml) . ,mod-val)))
+  ;; here module name is project parent module name
+  `(,(module-name lxml) . ,(modules lxml)))
 
 
 (defun project-module-dependencies (lxml dependency-list)

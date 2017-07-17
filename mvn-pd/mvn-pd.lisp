@@ -167,7 +167,7 @@
 
 (defun project-module-list (lxml)
   ;; here module name is project parent module name
-  `(,(module-name lxml) . ,(modules lxml)))
+  (cons (module-name lxml) (modules lxml)))
 
 
 (defun project-module-dependencies (lxml dependency-list)

@@ -130,7 +130,7 @@
 		 art-id)))
 	
 	     
-(defun module-name (lxml &optional (default-name ""))
+(defun module-name (lxml &optional default-name)
   "returns artifactId of pom module"
   (let* ((art-id-el (find-nested-el lxml '(:|project| :|artifactId|) ))
 	 (art-id-name (mapcan #'value? art-id-el)))
@@ -151,7 +151,9 @@
 
 (defun child-module? (lxml)
   "is parent module? = has parent section"
-  (find-nested-el lxml '(:|project| :|parent|)))
+  (and
+   (find-nested-el lxml '(:|project| :|parent|))
+   (module-name lxml)))
 
 
 (defun modules (lxml)
@@ -177,14 +179,14 @@
            (artifact-value (dep)
              (value (find-if #'artifactid-by-name? dep)))
            (module-dependend? (dep)
-             (find #'artifact-value artifact-list)))
-    
-
-;; (equalp "tornado" "Tornado")
-           
-))
-  nil
-)
+             (member (artifact-value dep) artifact-list :test #'equal)))
+    ;; reverse because concatinating to head
+    (reverse (reduce (lambda (res dep)
+                       (if (module-dependend? dep)
+                           (cons dep res)
+                           res)) 
+                     (cdr module)
+                     :initial-value (list (car module))))))
 
 
 (defun project-module-list (lxml)
@@ -230,28 +232,26 @@
     (when proj-dep
       (let* ((modules-dep (cdr proj-dep))
             (module-names (mapcar #'car modules-dep)))
-;;         (labels ((constains-module)))
+        ;;         (labels ((constains-module)))
         module-names
-)
-     
-      )
-    )  )
-  ;; "dependency-list contains structure of already computed dependencies"
-  
-  ;; ;; remove :|dependency| and :|module|
-
-  ;; ;; TODO
-  ;; ;; combine...
-  ;; ;; project-module-dependencies ...with...
-  ;; ;; module-dependency-list
-    
-  ;; "filters module dependencies by parent modules"
-  ;; ;; mapcan (find elem list)
-
-
+        ;; TODO call: module-dependencies-containing-artifacts
+        ;; hint: reduce
+))))
+ 
   
 (defun to-dot-format (proj-dependencies)
   ;; TODO
+  ;;  digraph { label="parent-artifact";
+  ;;      ModuleA -> ModuleB; 
+  ;;      ModuleA -> ModuleC; 
+  ;;      ModuleB -> ModuleC;
+  ;;  }
+
+;; TODO consider (when no dependency to other Module, like ModuleB)
+;; digraph { label="parent-artifact";
+;;         ModuleA -> ModuleC; 
+;;         ModuleB ;
+;;   }
   )
 
 (defun project-dependencies-dot (pom-file-list)

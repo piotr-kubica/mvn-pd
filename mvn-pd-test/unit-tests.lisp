@@ -317,6 +317,11 @@
   (is-true (mvn-pd::parent-module? *pom-parent-lxml*))
   (is-false (mvn-pd::parent-module? *pom-module-a-lxml*)))
 
+(test child-module?-test
+;; TODO check: has parent and has name
+  (is-true nil)
+  )
+
 (test modules-test  
   (is-equal (mvn-pd::modules *pom-parent-lxml*)
             '("ModuleA" "ModuleB" "ModuleC")))
@@ -365,14 +370,28 @@
                ((:|groupId| "com.example")
                 (:|artifactId| "ModuleC")
                 (:|version| "0.1")))
+
              '("ModuleA" "ModuleB" "ModuleC"))
 
-            (((:|groupId| "com.example")
-              (:|artifactId| "ModuleB")
-              (:|version| "0.1"))
-             ((:|groupId| "com.example")
-              (:|artifactId| "ModuleC")
-              (:|version| "0.1"))))
+            '("ModuleA" 
+              ((:|groupId| "com.example")
+               (:|artifactId| "ModuleB")
+               (:|version| "0.1"))
+              ((:|groupId| "com.example")
+               (:|artifactId| "ModuleC")
+               (:|version| "0.1"))))
+  
+  (is-equal (mvn-pd::module-dependencies-containing-artifacts
+             '("ModuleA" 
+               ((:|groupId| "junit")
+                (:|artifactId| "junit")
+                (:|version| "4.8")
+                (:|scope| "test"))
+               ((:|groupId| "com.example")
+                (:|artifactId| "ModuleB")
+                (:|version| "0.1")))
+             '("ModuleC"))
+            '("ModuleA"))
 
   (is-equal (mvn-pd::module-dependencies-containing-artifacts
              '("ModuleA" 
@@ -383,20 +402,18 @@
                ((:|groupId| "com.example")
                 (:|artifactId| "ModuleB")
                 (:|version| "0.1")))
-             ("ModuleC"))
-            nil)
+             '("ModuleC"))
+            '("ModuleA"))
 
   (is-equal (mvn-pd::module-dependencies-containing-artifacts
-             '("ModuleA" 
-               ((:|groupId| "junit")
-                (:|artifactId| "junit")
-                (:|version| "4.8")
-                (:|scope| "test"))
-               ((:|groupId| "com.example")
-                (:|artifactId| "ModuleB")
-                (:|version| "0.1")))
+             '("ModuleA")
              nil)
-            nil))
+            '("ModuleA"))
+
+  (is-equal (mvn-pd::module-dependencies-containing-artifacts
+             '("ModuleA")
+             '("ModuleC"))
+            '("ModuleA")))
 
 (test project-dependencies-test
   (is-equal (mvn-pd::project-dependencies 
@@ -444,6 +461,12 @@
   ;;      ModuleA -> ModuleC; 
   ;;      ModuleB -> ModuleC;
   ;;  }
+
+;; TODO consider
+;; digraph { label="parent-artifact";
+;;         ModuleA -> ModuleC; 
+;;         ModuleB ;
+;;   }
 
 (defparameter *project-dependencies* "todo!")
 

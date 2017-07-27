@@ -128,23 +128,26 @@
 		 (if gr-id-p
 		     (concatenate 'string gr-id-p "-"))
 		 art-id)))
-		     
-
-(defun module-name (lxml)
+	
+	     
+(defun module-name (lxml &optional (default-name ""))
   "returns artifactId of pom module"
   (let* ((art-id-el (find-nested-el lxml '(:|project| :|artifactId|) ))
 	 (art-id-name (mapcan #'value? art-id-el)))
-    (when art-id-name
-      (dependency-name (car art-id-name)))))
+    (if art-id-name
+      (dependency-name (car art-id-name))
+      default-name)))
 
 
 (defun dependencies (lxml)
   (mapcar #'cdr
           (find-nested-el lxml '(:|project| :|dependencies| :|dependency|))))
 
+
 (defun parent-module? (lxml)
   "is parent module? = has parent section"
-  (find-nested-el lxml '(:|modules| :|module|)))
+  (find-nested-el lxml '(:|project| :|modules| :|module|)))
+
 
 (defun child-module? (lxml)
   "is parent module? = has parent section"
@@ -168,29 +171,83 @@
   (cons (module-name lxml) (dependencies lxml)))
 
 
+(defun module-dependencies-containing-artifacts (module artifact-list)
+  (labels ((artifactid-by-name? (el)
+             (equalp (keyword->str (name el)) "artifactId"))
+           (artifact-value (dep)
+             (value (find-if #'artifactid-by-name? dep)))
+           (module-dependend? (dep)
+             (find #'artifact-value artifact-list)))
+    
+
+;; (equalp "tornado" "Tornado")
+           
+))
+  nil
+)
+
+
 (defun project-module-list (lxml)
   ;; here module name is project parent module name
   (cons (module-name lxml) (modules lxml)))
 
 
-(defun project-dependencies (lxml dependency-list)
-  
+;; parse-xml-fun should return a stream, ex. 
+;; s-xml:parse-xml-file 
+;; or 
+;; s-xml:parse-xml-string
+;; 
+;; read more: https://common-lisp.net/project/s-xml/S-XML.html
+;; dependency-list should be list of strings or filenames
+(defun read-dependencies (dependendecy-list parse-xml-fun)
+  (let* ((lxml-list (mapcar 
+                     (lambda (d)
+                       (funcall parse-xml-fun d)) 
+                     dependendecy-list))
+         (parent-lxml (find-if 
+                       #'parent-module? 
+                       lxml-list))
+         (module-lxml-list (mapcan 
+                            (lambda (d) 
+                              (and (child-module? d) (list d) ))
+                            lxml-list)))
+    (and module-lxml-list
+         (cons parent-lxml module-lxml-list))))
+
+
+(defun project-dependencies (dependendecy-list parse-xml-fun)
+  (let ((lxml-par-and-mods (read-dependencies dependendecy-list parse-xml-fun)))
+    (when lxml-par-and-mods
+      (let ((par-name (module-name (car lxml-par-and-mods) "Project"))
+            (deps (mapcan 
+                   (lambda (d) (list (module-dependency-list d)))
+                   (cdr  lxml-par-and-mods))))
+        (cons par-name deps)))))
+
+
+(defun project-module-dependencies (dependendecy-list parse-xml-fun)
+  (let ((proj-dep (project-dependencies dependendecy-list parse-xml-fun)))
+    (when proj-dep
+      (let* ((modules-dep (cdr proj-dep))
+            (module-names (mapcar #'car modules-dep)))
+;;         (labels ((constains-module)))
+        module-names
 )
+     
+      )
+    )  )
+  ;; "dependency-list contains structure of already computed dependencies"
+  
+  ;; ;; remove :|dependency| and :|module|
 
-(defun project-module-dependencies (lxml module-dependency-lists)
-  "dependency-list contains structure of already computed dependencies"
-
-  ;; remove :|dependency| and :|module|
-
-  ;; TODO
-  ;; combine...
-  ;; project-module-dependencies ...with...
-  ;; module-dependency-list
+  ;; ;; TODO
+  ;; ;; combine...
+  ;; ;; project-module-dependencies ...with...
+  ;; ;; module-dependency-list
     
-  "filters module dependencies by parent modules"
-  ;; mapcan (find elem list)
+  ;; "filters module dependencies by parent modules"
+  ;; ;; mapcan (find elem list)
 
-  )
 
   
 (defun to-dot-format (proj-dependencies)

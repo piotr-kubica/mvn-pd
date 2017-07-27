@@ -105,9 +105,9 @@
 
 (setf s-xml:*ignore-namespaces* t)
 
-(defun xml-stream-to-lxml (xml-stream)
+(defun xml-stream-to-lxml (xml-string)
   (s-xml:parse-xml
-   (make-string-input-stream xml-stream)))
+   (make-string-input-stream xml-string)))
 
 (defparameter *pom-parent-lxml* (xml-stream-to-lxml *pom-parent*))
 (defparameter *pom-module-a-lxml* (xml-stream-to-lxml *pom-module-a*))
@@ -190,8 +190,7 @@
                ((:|b| :|atr| "b") "text-b")
                ((:|c| :|atr| "c") "text-c"
                 :|e|)
-               :|d|)))
-  (print +lxml+))
+               :|d|))))
 
 
 (test find-lxml-el-test
@@ -279,7 +278,11 @@
 
 (test module-name-test
   (is-equal (mvn-pd::module-name *pom-module-a-lxml*)
-            "ModuleA"))
+            "ModuleA")
+  (is-equal (mvn-pd::module-name *pom-parent-lxml*)
+            "parent-artifact")
+  (is-equal (mvn-pd::module-name nil "Default Name")
+            "Default Name"))
 
 (test depenencies-test
   (is-equal (mvn-pd::dependencies *pom-module-a-lxml*)
@@ -306,7 +309,9 @@
                (:|version| "0.1"))
               ((:|groupId| "com.example")
                (:|artifactId| "ModuleC")
-               (:|version| "0.1")))))
+               (:|version| "0.1"))))
+  (is-equal (mvn-pd::module-dependency-list *pom-module-c-lxml*)
+            '("ModuleC")))
 
 (test parent-module?-test
   (is-true (mvn-pd::parent-module? *pom-parent-lxml*))
@@ -319,39 +324,120 @@
 (test project-module-list-test
   (is-equal (mvn-pd::project-module-list *pom-parent-lxml*)
             '("parent-artifact" "ModuleA" "ModuleB" "ModuleC")))
+
+(test read-dependencies-test
+  ;; parent and modules present
+  (is-equal (list-length 
+             (mvn-pd::read-dependencies 
+              (list *pom-parent* *pom-module-a* *pom-module-b* *pom-module-c*)
+              #'s-xml:parse-xml-string))
+            4)
+  ;; only modules present - ok, still makes sense to display
+  (is-equal (list-length 
+             (mvn-pd::read-dependencies 
+              (list *pom-module-a* *pom-module-b* *pom-module-c*)
+              #'s-xml:parse-xml-string))
+            4)
+  ;; only parent present - makes no sense to display
+  (is-equal (list-length 
+             (mvn-pd::read-dependencies 
+              (list *pom-parent*)
+              #'s-xml:parse-xml-string))
+            0)
+  ;; none present - forget it!
+  (is-equal (list-length 
+             (mvn-pd::read-dependencies 
+              (list)
+              #'s-xml:parse-xml-string))
+            0))
 	     
-(test project-dependencies
-  (is-equal (mvn-pd::project-dependencies *pom-parent-lxml*)
+
+(test module-dependencies-containing-artifacts-test
+  (is-equal (mvn-pd::module-dependencies-containing-artifacts
+             '("ModuleA" 
+               ((:|groupId| "junit")
+                (:|artifactId| "junit")
+                (:|version| "4.8")
+                (:|scope| "test"))
+               ((:|groupId| "com.example")
+                (:|artifactId| "ModuleB")
+                (:|version| "0.1"))
+               ((:|groupId| "com.example")
+                (:|artifactId| "ModuleC")
+                (:|version| "0.1")))
+             '("ModuleA" "ModuleB" "ModuleC"))
+
+            (((:|groupId| "com.example")
+              (:|artifactId| "ModuleB")
+              (:|version| "0.1"))
+             ((:|groupId| "com.example")
+              (:|artifactId| "ModuleC")
+              (:|version| "0.1"))))
+
+  (is-equal (mvn-pd::module-dependencies-containing-artifacts
+             '("ModuleA" 
+               ((:|groupId| "junit")
+                (:|artifactId| "junit")
+                (:|version| "4.8")
+                (:|scope| "test"))
+               ((:|groupId| "com.example")
+                (:|artifactId| "ModuleB")
+                (:|version| "0.1")))
+             ("ModuleC"))
+            nil)
+
+  (is-equal (mvn-pd::module-dependencies-containing-artifacts
+             '("ModuleA" 
+               ((:|groupId| "junit")
+                (:|artifactId| "junit")
+                (:|version| "4.8")
+                (:|scope| "test"))
+               ((:|groupId| "com.example")
+                (:|artifactId| "ModuleB")
+                (:|version| "0.1")))
+             nil)
+            nil))
+
+(test project-dependencies-test
+  (is-equal (mvn-pd::project-dependencies 
+             (list *pom-parent* *pom-module-a* *pom-module-b* *pom-module-c*)
+             #'s-xml:parse-xml-string)
             '("parent-artifact"
-              ("ModuleA" . (((:|groupId| "junit")
-                             (:|artifactId| "junit")
-                             (:|version| "4.8")
-                             (:|scope| "test"))
-                            ((:|groupId| "com.example")
-                             (:|artifactId| "ModuleB")
-                             (:|version| "1.0"))
-                            ((:|groupId| "com.example")
-                             (:|artifactId| "ModuleC")
-                             (:|version| "1.0"))))
-              ("ModuleB" . (((:|groupId| "com.example")
-                             (:|artifactId| "ModuleC")
-                             (:|version| "1.0"))))
-              ("ModuleC" . '() ))))
+              ("ModuleA" 
+               ((:|groupId| "junit")
+                (:|artifactId| "junit")
+                (:|version| "4.8")
+                (:|scope| "test"))
+               ((:|groupId| "com.example")
+                (:|artifactId| "ModuleB")
+                (:|version| "0.1"))
+               ((:|groupId| "com.example")
+                (:|artifactId| "ModuleC")
+                (:|version| "0.1")))
+              ("ModuleB" 
+               ((:|groupId| "com.example")
+                (:|artifactId| "ModuleC")
+                (:|version| "0.1")))
+              ("ModuleC"))))
 
 ;; shows only dependencies between modules
 (test project-module-dependencies-test  
-  (is-equal (mvn-pd::project-module-dependencies *pom-parent-lxml*)
+  (is-equal (mvn-pd::project-module-dependencies 
+             (list *pom-parent* *pom-module-a* *pom-module-b* *pom-module-c*)
+             #'s-xml:parse-xml-string)
             '("parent-artifact"
-              ("ModuleA" . (((:|groupId| "com.example")
-                             (:|artifactId| "ModuleB")
-                             (:|version| "1.0"))
-                            ((:|groupId| "com.example")
-                             (:|artifactId| "ModuleC")
-                             (:|version| "1.0"))))
-              ("ModuleB" . (((:|groupId| "com.example")
-                             (:|artifactId| "ModuleC")
-                             (:|version| "1.0"))))
-              ("ModuleC" . '() ))))
+              ("ModuleA" 
+               ((:|groupId| "com.example")
+                (:|artifactId| "ModuleB")
+                (:|version| "0.1"))
+               ((:|groupId| "com.example")
+                (:|artifactId| "ModuleC")
+                (:|version| "0.1")))
+              ("ModuleB" 
+               ((:|groupId| "com.example")
+                (:|artifactId| "ModuleC")
+                (:|version| "0.1")))
+              ("ModuleC"))))
 
   ;;  digraph { label="parent-artifact";
   ;;      ModuleA -> ModuleB; 

@@ -142,8 +142,6 @@
   (mapcar #'cdr
           (find-nested-el lxml '(:|project| :|dependencies| :|dependency|))))
 
-;; TODO parent-module? tests!
-
 (defun parent-module? (lxml)
   "is parent module? = has parent section"
   (find-nested-el lxml '(:|modules| :|module|)))

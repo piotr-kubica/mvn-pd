@@ -56,7 +56,6 @@
        (remove-if-not #'stringp (children elem))))
 
 (defun value (elem)
-  ;; TODO test
   "returns element containing element value excluding other nodes"
   (if (children? elem)
       (car (remove-if-not #'stringp (children elem)))))
@@ -140,11 +139,17 @@
 
 
 (defun dependencies (lxml)
-  (find-nested-el lxml '(:|project| :|dependencies| :|dependency|)))
+  (mapcar #'cdr
+          (find-nested-el lxml '(:|project| :|dependencies| :|dependency|))))
 
+;; TODO parent-module? tests!
 
-(defun module? (lxml)
-  "is moudle? = has parent section"
+(defun parent-module? (lxml)
+  "is parent module? = has parent section"
+  (find-nested-el lxml '(:|modules| :|module|)))
+
+(defun child-module? (lxml)
+  "is parent module? = has parent section"
   (find-nested-el lxml '(:|project| :|parent|)))
 
 
@@ -162,7 +167,7 @@
 
 (defun module-dependency-list (lxml)
   "returns all dependencies for this module as assoc list"
-  `(,(module-name lxml) . ,(dependencies lxml)))
+  (cons (module-name lxml) (dependencies lxml)))
 
 
 (defun project-module-list (lxml)
@@ -170,7 +175,11 @@
   (cons (module-name lxml) (modules lxml)))
 
 
-(defun project-module-dependencies (lxml dependency-list)
+(defun project-dependencies (lxml dependency-list)
+  
+)
+
+(defun project-module-dependencies (lxml module-dependency-lists)
   "dependency-list contains structure of already computed dependencies"
 
   ;; remove :|dependency| and :|module|

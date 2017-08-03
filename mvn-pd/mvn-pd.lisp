@@ -173,7 +173,7 @@
   (cons (module-name lxml) (dependencies lxml)))
 
 
-(defun module-dependencies-containing-artifacts (module artifact-list)
+(defun mod-deps-containing-artifacts (module artifact-list)
   (labels ((artifactid-by-name? (el)
              (equalp (keyword->str (name el)) "artifactId"))
            (artifact-value (dep)
@@ -230,13 +230,15 @@
 (defun project-module-dependencies (dependendecy-list parse-xml-fun)
   (let ((proj-dep (project-dependencies dependendecy-list parse-xml-fun)))
     (when proj-dep
-      (let* ((modules-dep (cdr proj-dep))
-            (module-names (mapcar #'car modules-dep)))
-        ;;         (labels ((constains-module)))
-        module-names
-        ;; TODO call: module-dependencies-containing-artifacts
-        ;; hint: reduce
-))))
+      (let* ((project-name (car proj-dep))
+             (module-deps (cdr proj-dep))
+             (module-names (mapcar #'car module-deps)))
+        (reverse 
+         (reduce 
+          (lambda (res mdep)
+            (cons (mod-deps-containing-artifacts mdep module-names) res))
+          module-deps
+          :initial-value (list project-name)))))))
  
   
 (defun to-dot-format (proj-dependencies)

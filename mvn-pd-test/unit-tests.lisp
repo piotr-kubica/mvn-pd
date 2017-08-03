@@ -357,8 +357,8 @@
             0))
 	     
 
-(test module-dependencies-containing-artifacts-test
-  (is-equal (mvn-pd::module-dependencies-containing-artifacts
+(test mod-deps-containing-artifacts-test
+  (is-equal (mvn-pd::mod-deps-containing-artifacts
              '("ModuleA" 
                ((:|groupId| "junit")
                 (:|artifactId| "junit")
@@ -381,7 +381,7 @@
                (:|artifactId| "ModuleC")
                (:|version| "0.1"))))
   
-  (is-equal (mvn-pd::module-dependencies-containing-artifacts
+  (is-equal (mvn-pd::mod-deps-containing-artifacts
              '("ModuleA" 
                ((:|groupId| "junit")
                 (:|artifactId| "junit")
@@ -393,24 +393,12 @@
              '("ModuleC"))
             '("ModuleA"))
 
-  (is-equal (mvn-pd::module-dependencies-containing-artifacts
-             '("ModuleA" 
-               ((:|groupId| "junit")
-                (:|artifactId| "junit")
-                (:|version| "4.8")
-                (:|scope| "test"))
-               ((:|groupId| "com.example")
-                (:|artifactId| "ModuleB")
-                (:|version| "0.1")))
-             '("ModuleC"))
-            '("ModuleA"))
-
-  (is-equal (mvn-pd::module-dependencies-containing-artifacts
+  (is-equal (mvn-pd::mod-deps-containing-artifacts
              '("ModuleA")
              nil)
             '("ModuleA"))
 
-  (is-equal (mvn-pd::module-dependencies-containing-artifacts
+  (is-equal (mvn-pd::mod-deps-containing-artifacts
              '("ModuleA")
              '("ModuleC"))
             '("ModuleA")))

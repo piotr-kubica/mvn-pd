@@ -318,9 +318,8 @@
   (is-false (mvn-pd::parent-module? *pom-module-a-lxml*)))
 
 (test child-module?-test
-;; TODO check: has parent and has name
-  (is-true nil)
-  )
+  (is-false (mvn-pd::child-module? *pom-parent*))
+  (is-true (mvn-pd::child-module? *pom-module-a-lxml*)))
 
 (test modules-test  
   (is-equal (mvn-pd::modules *pom-parent-lxml*)
@@ -444,26 +443,49 @@
                 (:|version| "0.1")))
               ("ModuleC"))))
 
-  ;;  digraph { label="parent-artifact";
-  ;;      ModuleA -> ModuleB; 
-  ;;      ModuleA -> ModuleC; 
-  ;;      ModuleB -> ModuleC;
-  ;;  }
+(defparameter *project-dependencies-1* 
+  '("parent-artifact"
+    ("ModuleA" 
+     ((:|groupId| "com.example")
+      (:|artifactId| "ModuleC")
+      (:|version| "0.1")))
+    ("ModuleB")))
 
-;; TODO consider
-;; digraph { label="parent-artifact";
-;;         ModuleA -> ModuleC; 
-;;         ModuleB ;
-;;   }
-
-(defparameter *project-dependencies* "todo!")
+(defparameter *project-dependencies-2* 
+  '("parent-artifact"
+    ("ModuleA" 
+     ((:|groupId| "com.example")
+      (:|artifactId| "ModuleB")
+      (:|version| "0.1"))
+     ((:|groupId| "com.example")
+      (:|artifactId| "ModuleC")
+      (:|version| "0.1")))
+    ("ModuleB" 
+     ((:|groupId| "com.example")
+      (:|artifactId| "ModuleC")
+      (:|version| "0.1")))
+    ("ModuleC")))
 
 (test to-dot-format-test
-  (is-equal (mvn-pd::to-dot-format *project-dependencies*)
-            "digraph{label=\"parent-artifact\";ModuleA->ModuleB;ModuleA->ModuleC;ModuleB->ModuleC;}"))
+  (is-equal (mvn-pd::to-dot-format *project-dependencies-1*)
+            (mvn-pd::remove-white-char 
+             "digraph { 
+               label=\"parent-artifact\";
+               ModuleA -> ModuleC; 
+               ModuleB ;
+             }"))
+  (is-equal (mvn-pd::to-dot-format *project-dependencies-2*)
+            (mvn-pd::remove-white-char 
+             "digraph { 
+                label=\"parent-artifact\";
+                ModuleA -> ModuleB; 
+                ModuleA -> ModuleC; 
+                ModuleB -> ModuleC;
+             }")))
 
-            ;; TODO graphviz dot file
-            ;; digraph
-            ;; http://www.graphviz.org/content/dot-language
-            ;; http://graphs.grevian.org/example
+
+       ;; TODO graphviz dot file
+       ;; digraph
+       ;; http://www.graphviz.org/content/dot-language
+       ;; http://graphs.grevian.org/example
   

@@ -242,18 +242,7 @@
  
   
 (defun to-dot-format (proj-dependencies)
-  ;; TODO
-  ;;  digraph { label="parent-artifact";
-  ;;      ModuleA -> ModuleB; 
-  ;;      ModuleA -> ModuleC; 
-  ;;      ModuleB -> ModuleC;
-  ;;  }
 
-;; TODO consider (when no dependency to other Module, like ModuleB)
-;; digraph { label="parent-artifact";
-;;         ModuleA -> ModuleC; 
-;;         ModuleB ;
-;;   }
   )
 
 (defun project-dependencies-dot (pom-file-list)

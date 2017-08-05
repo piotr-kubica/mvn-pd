@@ -173,13 +173,18 @@
   (cons (module-name lxml) (dependencies lxml)))
 
 
+(defun dependency-value (module-dep dependency-name)
+  (when (and dependency-name (stringp dependency-name))
+    (flet
+        ((eq-name (el)
+           (equalp (keyword->str (name el)) dependency-name)))
+      (value (find-if #'eq-name module-dep)))))
+
+
 (defun mod-deps-containing-artifacts (module artifact-list)
-  (labels ((artifactid-by-name? (el)
-             (equalp (keyword->str (name el)) "artifactId"))
-           (artifact-value (dep)
-             (value (find-if #'artifactid-by-name? dep)))
-           (module-dependend? (dep)
-             (member (artifact-value dep) artifact-list :test #'equal)))
+  (labels ((module-dependend? (dep)
+             (member (dependency-value dep "artifactId") artifact-list 
+                     :test #'equal)))
     ;; reverse because concatinating to head
     (reverse (reduce (lambda (res dep)
                        (if (module-dependend? dep)
@@ -242,11 +247,38 @@
  
   
 (defun to-dot-format (proj-dependencies)
-
-  )
+  (let ((outstr (make-string-output-stream)))
+    (format outstr "digraph { ~&")
+    (format outstr "~,,4@alabel=\"~a\";~&" #\Space (car proj-dependencies))
+    (mapc (lambda (m)
+            (let ((mod-name (car m)))
+              (if (cdr m)
+                  (progn
+                    (mapc (lambda (d)
+                            (format outstr "~,,5@a -> ~a;~&" 
+                                    mod-name (dependency-value d "artifactId"))) 
+                          (cdr m) ))
+                  (format outstr "~,,5@a;~&" mod-name))))
+          (cdr proj-dependencies))
+    (format outstr "}")
+    (get-output-stream-string outstr)))
+ 
 
 (defun project-dependencies-dot (pom-file-list)
-;; process each file in list to output dependency-list and combine them all
-;; finaly save to dot file
+  (labels  write-to-file (content)
+           ((with-open-file (stream "mvn-pd-out"
+                                    :direction :output 
+                                    :if-exists :overwrite
+                                    :if-does-not-exist :create)
+              (format stream content))))
+  
+  ;; TODO combine  
+  ;; project-module-dependencies (pom-file-list s-xml:parse-xml-file)
+  ;; to-dot-file
+  ;; write-to-file
+
+  ;; process each file in list to output dependency-list and combine them all
+  ;; finaly save to dot file
+
     )
  

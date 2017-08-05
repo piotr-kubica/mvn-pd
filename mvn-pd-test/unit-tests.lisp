@@ -313,6 +313,28 @@
   (is-equal (mvn-pd::module-dependency-list *pom-module-c-lxml*)
             '("ModuleC")))
 
+
+(test dependency-value-test
+  (is-equal (mvn-pd::dependency-value 
+             '((:|groupId| "junit")
+               (:|artifactId| "junit")
+               (:|version| "4.8")
+               (:|scope| "test"))
+             "artifactId")
+            "junit")
+  (is-equal (mvn-pd::dependency-value 
+             '((:|groupId| "junit")
+               (:|artifactId| "junit")
+               (:|version| "4.8")
+               (:|scope| "test"))
+             "")
+            nil)
+  (is-equal (mvn-pd::dependency-value 
+             '()
+             "artifactId")
+            nil))
+
+
 (test parent-module?-test
   (is-true (mvn-pd::parent-module? *pom-parent-lxml*))
   (is-false (mvn-pd::parent-module? *pom-module-a-lxml*)))
@@ -467,21 +489,26 @@
     ("ModuleC")))
 
 (test to-dot-format-test
-  (is-equal (mvn-pd::to-dot-format *project-dependencies-1*)
-            (mvn-pd::remove-white-char 
-             "digraph { 
-               label=\"parent-artifact\";
-               ModuleA -> ModuleC; 
-               ModuleB ;
-             }"))
-  (is-equal (mvn-pd::to-dot-format *project-dependencies-2*)
-            (mvn-pd::remove-white-char 
-             "digraph { 
-                label=\"parent-artifact\";
-                ModuleA -> ModuleB; 
-                ModuleA -> ModuleC; 
-                ModuleB -> ModuleC;
-             }")))
+  (is-equal 
+   (mvn-pd::remove-white-char 
+    (mvn-pd::to-dot-format *project-dependencies-1*))
+   (mvn-pd::remove-white-char 
+    "digraph { 
+          label=\"parent-artifact\";
+          ModuleA -> ModuleC; 
+          ModuleB ;
+    }"))
+  (is-equal 
+   (mvn-pd::remove-white-char 
+    (mvn-pd::to-dot-format *project-dependencies-2*))
+   (mvn-pd::remove-white-char 
+    "digraph { 
+          label=\"parent-artifact\";
+          ModuleA -> ModuleB; 
+          ModuleA -> ModuleC; 
+          ModuleB -> ModuleC;
+          ModuleC;
+     }")))
 
 
        ;; TODO graphviz dot file

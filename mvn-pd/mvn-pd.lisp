@@ -3,16 +3,6 @@
 
 (in-package :mvn-pd)
 
-(defun remove-white-char (s)
-  (let ((chars (coerce s 'list))
-        (white-chars '(#\Space #\Newline #\Backspace #\Tab 
-                       #\Linefeed #\Page #\Return #\Rubout)))
-    (coerce (mapcan 
-             (lambda (c) (and (not (find c white-chars)) 
-                              (list c))) 
-             chars) 
-            'string)))
-
 (defun keyword->str (kw)
   "converts keyword to string"
   (when (symbolp kw)
@@ -185,7 +175,7 @@
   (labels ((module-dependend? (dep)
              (member (dependency-value dep "artifactId") artifact-list 
                      :test #'equal)))
-    ;; reverse because concatinating to head
+    ;; reverse because concatenating to head
     (reverse (reduce (lambda (res dep)
                        (if (module-dependend? dep)
                            (cons dep res)
@@ -253,24 +243,26 @@
     (mapc (lambda (m)
             (let ((mod-name (car m)))
               (if (cdr m)
-                  (progn
-                    (mapc (lambda (d)
-                            (format outstr "~,,5@a -> ~a;~&" 
-                                    mod-name (dependency-value d "artifactId"))) 
-                          (cdr m) ))
+                  (mapc (lambda (d)
+                          (format outstr "~,,5@a -> ~a;~&" 
+                                  mod-name (dependency-value d "artifactId"))) 
+                        (cdr m))
                   (format outstr "~,,5@a;~&" mod-name))))
           (cdr proj-dependencies))
     (format outstr "}")
     (get-output-stream-string outstr)))
  
 
-(defun project-dependencies-dot (pom-file-list)
-  (labels  write-to-file (content)
-           ((with-open-file (stream "mvn-pd-out"
-                                    :direction :output 
-                                    :if-exists :overwrite
-                                    :if-does-not-exist :create)
-              (format stream content))))
+(defun project-dependencies-dot (&rest pom-file-list)
+  ;; (let ((output-filename "mvn-pd-out"))
+  ;;   (labels  ((write-to-file (content)
+  ;;               (with-open-file (stream output-filename
+  ;;                                       :direction :output
+  ;;                                       :if-does-not-exist :create
+  ;;                                       :if-exists :supersede) 
+  ;;                 (format stream content))))))
+    )
+ 
   
   ;; TODO combine  
   ;; project-module-dependencies (pom-file-list s-xml:parse-xml-file)
@@ -280,5 +272,3 @@
   ;; process each file in list to output dependency-list and combine them all
   ;; finaly save to dot file
 
-    )
- 

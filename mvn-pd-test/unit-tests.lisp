@@ -2,11 +2,69 @@
 
 (in-package :mvn-pd-test)
 
+;; test convinience functions
+
 (defun is-equal (a b)
   (is (equal a b)))
 
+(defun remove-white-char (s)
+  (let ((chars (coerce s 'list))
+        (white-chars '(#\Space #\Newline #\Backspace #\Tab 
+                       #\Linefeed #\Page #\Return #\Rubout)))
+    (coerce (mapcan 
+             (lambda (c) (and (not (find c white-chars)) 
+                              (list c))) 
+             chars) 
+            'string)))
+
+(test remove-white-char-test
+  ;; new line
+  (is-equal (remove-white-char "a b 
+	  c") "abc")
+  ;; space
+  (is-equal (remove-white-char " a b  c") "abc")
+
+  (is-equal 
+   (remove-white-char "a
+       b
+           c d     
+ 
+    ")
+   "abcd"))
+
+(defun is-equal-stripped (a b)
+  (is (and (stringp a) (stringp b)
+           (equal (remove-white-char a) (remove-white-char b)))))
+
+
+(defun write-variable-content-to-file (v)
+  (when (boundp v)
+    (let ((filename (string-downcase (remove #\* (symbol-name v)))))
+      (format t "~&Writing file \"~a~a\" " (truename ".") filename)
+      (with-open-file (s filename
+                         :direction :output
+                         :if-does-not-exist :create
+                         :if-exists :supersede)
+        (format s "~a" (eval v))))))
+
+(defun file-to-string (filename)
+  (with-open-file (stream filename)
+    (loop for line = (read-line stream nil)
+       while line
+       collect line)))
+
+(setf s-xml:*ignore-namespaces* t)
+
+
+(defun xml-stream-to-lxml (xml-string)
+  (s-xml:parse-xml
+   (make-string-input-stream xml-string)))
+
+;; mvn-pd tests
+
 (defparameter *pom-parent*
-    "<project xmlns=\"http://maven.apache.org/POM/4.0.0\">
+    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+     <project xmlns=\"http://maven.apache.org/POM/4.0.0\">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.example</groupId>
 	<artifactId>parent-artifact</artifactId>
@@ -103,31 +161,11 @@
       </parent>
     </project>")
 
-(setf s-xml:*ignore-namespaces* t)
-
-(defun xml-stream-to-lxml (xml-string)
-  (s-xml:parse-xml
-   (make-string-input-stream xml-string)))
 
 (defparameter *pom-parent-lxml* (xml-stream-to-lxml *pom-parent*))
 (defparameter *pom-module-a-lxml* (xml-stream-to-lxml *pom-module-a*))
 (defparameter *pom-module-b-lxml* (xml-stream-to-lxml *pom-module-b*))
 (defparameter *pom-module-c-lxml* (xml-stream-to-lxml *pom-module-c*))
-
-(test remove-white-char-test
-  ;; new line
-  (is-equal (mvn-pd::remove-white-char "a b 
-	  c") "abc")
-  ;; space
-  (is-equal (mvn-pd::remove-white-char " a b  c") "abc")
-
-  (is-equal 
-   (mvn-pd::remove-white-char "digraph { label=\"parent-artifact\";
-       ModuleA -> ModuleB; 
-       ModuleA -> ModuleC; 
-       ModuleB -> ModuleC;
-    }")
-   "digraph{label=\"parent-artifact\";ModuleA->ModuleB;ModuleA->ModuleC;ModuleB->ModuleC;}"))
 
 (test keyword->str-test
   "keyword->str coerces keyword to string"
@@ -489,20 +527,40 @@
     ("ModuleC")))
 
 (test to-dot-format-test
-  (is-equal 
-   (mvn-pd::remove-white-char 
-    (mvn-pd::to-dot-format *project-dependencies-1*))
-   (mvn-pd::remove-white-char 
-    "digraph { 
+  (is-equal-stripped
+   (mvn-pd::to-dot-format *project-dependencies-1*)
+   "digraph { 
           label=\"parent-artifact\";
           ModuleA -> ModuleC; 
           ModuleB ;
-    }"))
-  (is-equal 
-   (mvn-pd::remove-white-char 
-    (mvn-pd::to-dot-format *project-dependencies-2*))
-   (mvn-pd::remove-white-char 
-    "digraph { 
+    }")
+  (is-equal-stripped
+   (mvn-pd::to-dot-format *project-dependencies-2*)
+   "digraph { 
+          label=\"parent-artifact\";
+          ModuleA -> ModuleB; 
+          ModuleA -> ModuleC; 
+          ModuleB -> ModuleC;
+          ModuleC;
+     }"))
+
+(test project-dependencies-dot-integration-test
+  ;; test setup - write modules to sparate files
+  ;; given
+  (let ((modules `(*pom-parent* 
+                   *pom-module-a* 
+                   *pom-module-b* 
+                   *pom-module-c*)))
+    (mapc (lambda (m)
+            (write-variable-content-to-file m))
+          modules)
+    ;; when
+    (project-dependencies-dot "pom-parent" "pom-module-a"
+                              "pom-module-b" "pom-module-c")
+    ;; then
+    (is-equal-stripped
+     (file-to-string "mvn-pd-output")
+     "digraph { 
           label=\"parent-artifact\";
           ModuleA -> ModuleB; 
           ModuleA -> ModuleC; 

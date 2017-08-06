@@ -40,18 +40,20 @@
 (defun write-variable-content-to-file (v)
   (when (boundp v)
     (let ((filename (string-downcase (remove #\* (symbol-name v)))))
-      (format t "~&Writing file \"~a~a\" " (truename ".") filename)
+      (format t "~&Writing file \"~a~a\" ~&" (truename ".") filename)
       (with-open-file (s filename
                          :direction :output
                          :if-does-not-exist :create
                          :if-exists :supersede)
         (format s "~a" (eval v))))))
 
-(defun file-to-string (filename)
+(defun read-file-to-string (filename)
+  (format t "~&Reading file ~a~a~&" (truename ".") filename)
   (with-open-file (stream filename)
-    (loop for line = (read-line stream nil)
-       while line
-       collect line)))
+    (format nil "~{~a~}" 
+            (loop for line = (read-line stream nil)
+               while line
+               collect line))))
 
 (setf s-xml:*ignore-namespaces* t)
 
@@ -555,11 +557,11 @@
             (write-variable-content-to-file m))
           modules)
     ;; when
-    (project-dependencies-dot "pom-parent" "pom-module-a"
+    (mvn-pd::project-dependencies-dot "pom-parent" "pom-module-a"
                               "pom-module-b" "pom-module-c")
     ;; then
     (is-equal-stripped
-     (file-to-string "mvn-pd-output")
+     (read-file-to-string "mvn-pd-output")
      "digraph { 
           label=\"parent-artifact\";
           ModuleA -> ModuleB; 

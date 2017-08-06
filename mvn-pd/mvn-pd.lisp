@@ -254,21 +254,13 @@
  
 
 (defun project-dependencies-dot (&rest pom-file-list)
-  ;; (let ((output-filename "mvn-pd-out"))
-  ;;   (labels  ((write-to-file (content)
-  ;;               (with-open-file (stream output-filename
-  ;;                                       :direction :output
-  ;;                                       :if-does-not-exist :create
-  ;;                                       :if-exists :supersede) 
-  ;;                 (format stream content))))))
-    )
- 
-  
-  ;; TODO combine  
-  ;; project-module-dependencies (pom-file-list s-xml:parse-xml-file)
-  ;; to-dot-file
-  ;; write-to-file
-
-  ;; process each file in list to output dependency-list and combine them all
-  ;; finaly save to dot file
+  (let* ((output-filename "mvn-pd-output")
+         (dependencies 
+          (project-module-dependencies pom-file-list #'s-xml:parse-xml-file))
+         (dependencies-dot (to-dot-format dependencies)))
+    (with-open-file (stream output-filename
+                            :direction :output
+                            :if-does-not-exist :create
+                            :if-exists :supersede) 
+      (format stream dependencies-dot))))
 

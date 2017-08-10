@@ -315,9 +315,8 @@
   (is-equal (find-nested-el *lxml-1* '(:|r| :|d| :|c|))
             '(((:|c| :|atr| "c") "text-c" :|e|)) )
   
-  ;; bug!?
   (is-equal (find-nested-el *lxml-1* '(:|r| :|c|))
-            '((:|c| "example" :|f|) ((:|c| :|atr| "c") "text-c" :|e|)))
+            '((:|c| "example" :|f|)))
 
   (is-equal (find-nested-el *lxml-2* '(:|project| :|artifactId|))
             '((:|artifactId| "ArtifactId"))) )

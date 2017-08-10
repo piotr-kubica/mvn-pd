@@ -204,7 +204,7 @@
 
 ;; setup common data for lxml tests
 (setf s-xml:*ignore-namespaces* t)
-(defparameter +sis+ (make-string-input-stream
+(defparameter *example-pom-1* (make-string-input-stream
 	"<?xml version=\"1.0\" encoding=\"UTF-8\"?>
         <r ns=\"http://maven.apache.org/POM/4.0.0\">
 	  <a atr1=\"a\" atr2=\"b\">text</a>
@@ -216,12 +216,28 @@
             <d></d>
           </d>
         </r>"))
-(defparameter +lxml+ (s-xml:parse-xml +sis+))
+
+(defparameter *lxml-2*
+  '((:|project| :|xmlns| "namespace" )
+    (:|modelVersion| "1.0")
+    (:|parent| 
+     (:|groupId| "com.example") 
+     (:|artifactId| "ParentPom")
+     (:|version| "1.0") 
+     (:|relativePath| "../ParentPom"))
+    (:|artifactId| "ArtifactId") 
+    (:|packaging| "jar")
+    (:|dependencies|
+     (:|dependency| 
+      (:|groupId| "org.someliv")
+      (:|artifactId| "annotations")))))
+
+(defparameter *lxml-1* (s-xml:parse-xml *example-pom-1*))
 
 
 (test data-lxml-test
-  (is-true (input-stream-p +sis+))
-  (is-equal +lxml+ 
+  (is-true (input-stream-p *example-pom-1*))
+  (is-equal *lxml-1* 
             '((:|r| :|ns| "http://maven.apache.org/POM/4.0.0")
               ((:|a| :|atr1| "a" :|atr2| "b") "text")
               :|b|
@@ -234,48 +250,51 @@
 
 
 (test find-lxml-el-test
-    (is-equal nil (find-lxml-el +lxml+ :|notexisting|))
+    (is-equal nil (find-lxml-el *lxml-1* :|notexisting|))
     (is-equal nil (find-lxml-el nil :|r|))
 
-    (is-equal (find-lxml-el +lxml+ :|a|)
+    (is-equal (find-lxml-el *lxml-1* :|a|)
               '(((:|a| :|atr1| "a" :|atr2| "b") "text")))
     
-    (is-equal (find-lxml-el +lxml+ :|b|)
+    (is-equal (find-lxml-el *lxml-1* :|b|)
               '(((:|b| :|atr| "b") "text-b") :|b|))
     
-    (is-equal (find-lxml-el +lxml+ :|b| :max-nest 1)
+    (is-equal (find-lxml-el *lxml-1* :|b| :max-nest 1)
               '(:|b|))
 
-    (is-equal (find-lxml-el +lxml+ :|b| :max-nest 0)
+    (is-equal (find-lxml-el *lxml-1* :|b| :max-nest 0)
               nil)
     
-    (is-equal (find-lxml-el +lxml+ :|e|)
+    (is-equal (find-lxml-el *lxml-1* :|e|)
               '(:|e|))
     
-    (is-equal (find-lxml-el +lxml+ :|atr|)
-              nil))
+    (is-equal (find-lxml-el *lxml-1* :|atr|)
+              nil)
+
+    (is-equal (find-lxml-el *lxml-2* :|artifactId| :max-nest 1)
+              '((:|artifactId| "ArtifactId")) ))
 
 
 (test find-lxml-el-children
-  (is-equal (mvn-pd::find-lxml-el-children +lxml+ :|a|)
+  (is-equal (mvn-pd::find-lxml-el-children *lxml-1* :|a|)
             nil)
     
-  (is-equal (mvn-pd::find-lxml-el-children +lxml+ :|b|)
+  (is-equal (mvn-pd::find-lxml-el-children *lxml-1* :|b|)
             nil)
 
-  (is-equal (mvn-pd::find-lxml-el-children +lxml+ :|c|)
+  (is-equal (mvn-pd::find-lxml-el-children *lxml-1* :|c|)
             '(:|e| :|f|) )
 
   (is-equal (mvn-pd::find-lxml-el-children '(:|b| (:|c| :|d|) :|e|) :|b|)
             '((:|c| :|d|) :|e| ))
 
-  (is-equal (mvn-pd::find-lxml-el-children +lxml+ nil)
+  (is-equal (mvn-pd::find-lxml-el-children *lxml-1* nil)
             nil)
 
-  (is-equal (mvn-pd::find-lxml-el-children +lxml+ :|notExisting|)
+  (is-equal (mvn-pd::find-lxml-el-children *lxml-1* :|notExisting|)
             nil)
 
-  (is-equal (mvn-pd::find-lxml-el-children +lxml+ :|c| :max-nest 1)
+  (is-equal (mvn-pd::find-lxml-el-children *lxml-1* :|c| :max-nest 1)
             '(:|f|) ))
 
 
@@ -284,20 +303,27 @@
   (is-equal (find-nested-el nil '(:|b| :|c|))
             nil)
 
-  (is-equal (find-nested-el +lxml+ nil)
+  (is-equal (find-nested-el *lxml-1* nil)
             nil)
 
   (is-equal (find-nested-el '(:|b| (:|c| :|d|) :|e|) '(:|b| :|c|))
             '((:|c| :|d|)) )
 
-  (is-equal (find-nested-el +lxml+ '(:|d| :|c|))
+  (is-equal (find-nested-el *lxml-1* '(:|d| :|c|))
             '(((:|c| :|atr| "c") "text-c" :|e|)) )
   
-  (is-equal (find-nested-el +lxml+ '(:|r| :|d| :|c|))
+  (is-equal (find-nested-el *lxml-1* '(:|r| :|d| :|c|))
             '(((:|c| :|atr| "c") "text-c" :|e|)) )
   
-  (is-equal (find-nested-el +lxml+ '(:|r| :|c|))
-            '((:|c| "example" :|f|) ((:|c| :|atr| "c") "text-c" :|e|)) ))
+  (is-equal (find-nested-el *lxml-1* '(:|r| :|c|))
+            '((:|c| "example" :|f|) ((:|c| :|atr| "c") "text-c" :|e|)) 
+
+;; this does not work
+  (is-equal (find-nested-el *lxml-2* '(:|project| :|artifactId|))
+            '((:|artifactId| "ArtifactId"))) ))
+
+;; but this works
+;; (find-lxml-el (car (find-lxml-el *lxml-2* :|project|)) :|artifactId| :max-nest 1)
 	
 
 (test find-lxml-el-test
@@ -576,3 +602,6 @@
        ;; http://www.graphviz.org/content/dot-language
        ;; http://graphs.grevian.org/example
   
+
+;; (directory "~/Downloads/pomy_all/pomy_modules/*.xml")
+

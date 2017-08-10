@@ -88,20 +88,28 @@
   "looks for directly nested elements and returns them as list"
   (labels ((find-offspring (lxml el)
 	     "first seach: descendands of any level"
+  ;;           (break "find-offsprint el: ~a" el)
 	     (find-lxml-el-children lxml el :max-nest -1))
 	   (find-children (lxml el)
+    ;;         (break "find-children el: ~a" el)
 	     "second to second-to-last search: only direct children"
 	     (find-lxml-el-children lxml el :max-nest 1))
 	   (last-searched? (elst)
 	     "is this the last searched elem?"
+             ;;              (break "find-el elst: ~a" elst)
 	     (null (cdr elst)))
 	   (find-el (lxml el)
 	     "when last search then return full elems"
-	     (find-lxml-el lxml el :max-nest 1))
+             ;; (break "find-el el: ~a" el) 
+	     (find-lxml-el lxml el :max-nest 0))
 	   (find-elems (ch-lst elst)
+             ;; if elements to find exist
 	     (if elst
+                 ;; then find the elems
 		 (find-elems
+                  ;; 
 		  (mapcan (lambda (cel)
+                ;;            (break "find-elems cel: ~a" cel)
 			    (if (last-searched? elst)
 				(find-el cel (car elst))
 				(find-children cel (car elst))))
@@ -109,6 +117,7 @@
 		  (cdr elst))
 		 ch-lst)))
     (when (and lxml elems eqfun)
+;;      (break "start")
       (find-elems (find-offspring lxml (car elems))  (cdr elems)))))
 
 
@@ -253,7 +262,7 @@
     (get-output-stream-string outstr)))
  
 
-(defun project-dependencies-dot (&rest pom-file-list)
+(defun project-dependencies-dot (pom-file-list)
   (let* ((output-filename "mvn-pd-output")
          (dependencies 
           (project-module-dependencies pom-file-list #'s-xml:parse-xml-file))

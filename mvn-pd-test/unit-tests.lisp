@@ -315,15 +315,12 @@
   (is-equal (find-nested-el *lxml-1* '(:|r| :|d| :|c|))
             '(((:|c| :|atr| "c") "text-c" :|e|)) )
   
+  ;; bug!?
   (is-equal (find-nested-el *lxml-1* '(:|r| :|c|))
-            '((:|c| "example" :|f|) ((:|c| :|atr| "c") "text-c" :|e|)) 
+            '((:|c| "example" :|f|) ((:|c| :|atr| "c") "text-c" :|e|)))
 
-;; this does not work
   (is-equal (find-nested-el *lxml-2* '(:|project| :|artifactId|))
-            '((:|artifactId| "ArtifactId"))) ))
-
-;; but this works
-;; (find-lxml-el (car (find-lxml-el *lxml-2* :|project|)) :|artifactId| :max-nest 1)
+            '((:|artifactId| "ArtifactId"))) )
 	
 
 (test find-lxml-el-test
@@ -583,8 +580,8 @@
             (write-variable-content-to-file m))
           modules)
     ;; when
-    (mvn-pd::project-dependencies-dot "pom-parent" "pom-module-a"
-                              "pom-module-b" "pom-module-c")
+    (mvn-pd::project-dependencies-dot '("pom-parent" "pom-module-a"
+                                                    "pom-module-b" "pom-module-c"))
     ;; then
     (is-equal-stripped
      (read-file-to-string "mvn-pd-output")

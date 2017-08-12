@@ -21,8 +21,8 @@ https://github.com/piotr-kubica/mvn-pd/blob/master/find-copy-rename/find-copy-re
 
 Given 
 - your Maven pom files are located in ~/example-pom/ 
-- your mvn-pd repository path is ~/mvn-pd
-- and your quicklisp path is ~/quicklisp
+- your mvn-pd repository path is ~/mvn-pd/
+- and your quicklisp path is ~/quicklisp/
 
 run command from bash
 

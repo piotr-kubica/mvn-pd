@@ -36,4 +36,4 @@ sbcl \
 
 ### Example
 
-- [ ] TODO example
+- [ ] TODO step by step example (with example pom's included)

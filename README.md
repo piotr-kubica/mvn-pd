@@ -25,12 +25,14 @@ Given
 - and your quicklisp path is ~/quicklisp
 run command from bash
 
+```
 sbcl \
      --no-userinit --no-sysinit --non-interactive \
      --load ~/quicklisp/setup.lisp \
      --eval '(progn (push #p"~/mvn-pd/" asdf:*central-registry*) (ql:quickload "mvn-pd") )' \
      --eval '(mvn-pd::project-dependencies-dot (directory "~/example-pom/*"))'
-     
+```
+
 ### Example
 
 - [ ] TODO example

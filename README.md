@@ -13,16 +13,16 @@ https://github.com/piotr-kubica/mvn-pd/blob/master/find-copy-rename/find-copy-re
 1. Checkout repository (ex. ~/mvn-pd/)
 
 2. You will also need to install external dependencies:
-    * sbcl (asdf by default included), Common Lisp compiler
-    * quicklisp, a dependency/package manager for Common Lisp
-    * graphviz, tool for creating a visual representation (.png, .jpg, etc.) of the dependency graph
+    * **sbcl**, a Common Lisp compiler (asdf by default included)
+    * **quicklisp**, a dependency/package manager for Common Lisp
+    * **graphviz** (optional), tool for creating a visual representation (.png, .jpg, etc.) of the dependency graph
 
 ### Run mvn-pd
 
-Given 
-- your Maven pom files are located in ~/example-pom/ 
-- your mvn-pd repository path is ~/mvn-pd/
-- and your quicklisp path is ~/quicklisp/
+Given your:
+- Maven pom files are located in ~/example-pom/ 
+- mvn-pd repository path is ~/mvn-pd/
+- quicklisp path is ~/quicklisp/
 
 run command from bash
 

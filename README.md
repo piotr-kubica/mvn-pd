@@ -14,7 +14,7 @@ https://github.com/piotr-kubica/mvn-pd/blob/master/find-copy-rename/find-copy-re
 
 2. You will also need to install external dependencies:
     * **sbcl**, a Common Lisp compiler (asdf by default included)
-    * **quicklisp**, a dependency/package manager for Common Lisp
+    * **quicklisp**, a library manager for Common Lisp
     * **graphviz** (optional), tool for creating a visual representation (.png, .jpg, etc.) of the dependency graph
 
 ### Run mvn-pd

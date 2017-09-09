@@ -8,5 +8,5 @@
                :fiveam)
   :serial t
   :components ((:file "package")
-               (:file "unit-tests")))
+               (:file "tests")))
 

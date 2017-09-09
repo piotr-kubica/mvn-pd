@@ -1,7 +1,13 @@
 ;;;; mvn-pd.lisp
 
-
 (in-package :mvn-pd)
+
+;;; constants
+
+(defconstant +PROJ-NAME-DEFAULT+ "Project")
+(defconstant +LOG-FILE+ "mvn-pd.log")
+
+;;; functions
 
 (defun keyword->str (kw)
   "converts keyword to string"
@@ -88,15 +94,15 @@
   "looks for directly nested elements and returns them as list"
   (labels ((find-offspring (lxml el)
 	     "first seach: descendands of any level"
-  ;;           (break "find-offsprint el: ~a" el)
+             ;; (break "find-offsprint el: ~a" el)
 	     (find-lxml-el-children lxml el :max-nest -1))
 	   (find-children (lxml el)
-    ;;         (break "find-children el: ~a" el)
+             ;; (break "find-children el: ~a" el)
 	     "second to second-to-last search: only direct children"
 	     (find-lxml-el-children lxml el :max-nest 1))
 	   (last-searched? (elst)
 	     "is this the last searched elem?"
-             ;;              (break "find-el elst: ~a" elst)
+             ;; (break "find-el elst: ~a" elst)
 	     (null (cdr elst)))
 	   (find-el (lxml el)
 	     "when last search then return full elems"
@@ -107,9 +113,8 @@
 	     (if elst
                  ;; then find the elems
 		 (find-elems
-                  ;; 
 		  (mapcan (lambda (cel)
-                ;;            (break "find-elems cel: ~a" cel)
+                            ;; (break "find-elems cel: ~a" cel)
 			    (if (last-searched? elst)
 				(find-el cel (car elst))
 				(find-children cel (car elst))))
@@ -117,7 +122,7 @@
 		  (cdr elst))
 		 ch-lst)))
     (when (and lxml elems eqfun)
-;;      (break "start")
+      ;; (break "start")
       (find-elems (find-offspring lxml (car elems))  (cdr elems)))))
 
 
@@ -202,19 +207,36 @@
 ;; s-xml:parse-xml-file 
 ;; or 
 ;; s-xml:parse-xml-string
+;; (future rspec validation?)
 ;; 
 ;; read more: https://common-lisp.net/project/s-xml/S-XML.html
 ;; dependency-list should be list of strings or filenames
 (defun read-dependencies (dependendecy-list parse-xml-fun)
   (let* ((lxml-list (mapcar 
                      (lambda (d)
+
+                       ;; TODO log parsed files
+                       ;; +LOG-FILE+
+
+;; log to stderr and a file (see note about buffering in "Gotchas" below)
+;; (a-cl-logger:define-logger filelog ()
+;;   :appenders (make-instance 'a-cl-logger:file-log-appender
+;;                 :log-file "test.log" :buffer-p nil))
+
                        (funcall parse-xml-fun d)) 
                      dependendecy-list))
+         ;; there is possibility that there is no parent
          (parent-lxml (find-if 
+
+                       ;; TODO log parent module
+
                        #'parent-module? 
                        lxml-list))
          (module-lxml-list (mapcan 
                             (lambda (d) 
+
+                       ;; TODO log child module(s)
+
                               (and (child-module? d) (list d) ))
                             lxml-list)))
     (and module-lxml-list
@@ -224,7 +246,8 @@
 (defun project-dependencies (dependendecy-list parse-xml-fun)
   (let ((lxml-par-and-mods (read-dependencies dependendecy-list parse-xml-fun)))
     (when lxml-par-and-mods
-      (let ((par-name (module-name (car lxml-par-and-mods) "Project"))
+      ;; setting parent name to default if not present
+      (let ((par-name (module-name (car lxml-par-and-mods) +PROJ-NAME-DEFAULT+))
             (deps (mapcan 
                    (lambda (d) (list (module-dependency-list d)))
                    (cdr  lxml-par-and-mods))))
@@ -260,16 +283,17 @@
           (cdr proj-dependencies))
     (format outstr "}")
     (get-output-stream-string outstr)))
- 
+
 
 (defun project-dependencies-dot (pom-file-list)
   (let* ((output-filename "mvn-pd-output")
-         (dependencies 
-          (project-module-dependencies pom-file-list #'s-xml:parse-xml-file))
+         (dependencies (project-module-dependencies 
+                        pom-file-list 
+                        #'s-xml:parse-xml-file))
          (dependencies-dot (to-dot-format dependencies)))
     (with-open-file (stream output-filename
                             :direction :output
                             :if-does-not-exist :create
-                            :if-exists :supersede) 
+                            :if-exists :supersede)
       (format stream dependencies-dot))))
 

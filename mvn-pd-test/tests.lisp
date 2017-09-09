@@ -1,8 +1,6 @@
-;;;; unit-tests.lisp
+;;;; tests.lisp
 
 (in-package :mvn-pd-test)
-
-;; test convinience functions
 
 (defun is-equal (a b)
   (is (equal a b)))
@@ -250,28 +248,28 @@
 
 
 (test find-lxml-el-test
-    (is-equal nil (find-lxml-el *lxml-1* :|notexisting|))
-    (is-equal nil (find-lxml-el nil :|r|))
+    (is-equal nil (mvn-pd::find-lxml-el *lxml-1* :|notexisting|))
+    (is-equal nil (mvn-pd::find-lxml-el nil :|r|))
 
-    (is-equal (find-lxml-el *lxml-1* :|a|)
+    (is-equal (mvn-pd::find-lxml-el *lxml-1* :|a|)
               '(((:|a| :|atr1| "a" :|atr2| "b") "text")))
     
-    (is-equal (find-lxml-el *lxml-1* :|b|)
+    (is-equal (mvn-pd::find-lxml-el *lxml-1* :|b|)
               '(((:|b| :|atr| "b") "text-b") :|b|))
     
-    (is-equal (find-lxml-el *lxml-1* :|b| :max-nest 1)
+    (is-equal (mvn-pd::find-lxml-el *lxml-1* :|b| :max-nest 1)
               '(:|b|))
 
-    (is-equal (find-lxml-el *lxml-1* :|b| :max-nest 0)
+    (is-equal (mvn-pd::find-lxml-el *lxml-1* :|b| :max-nest 0)
               nil)
     
-    (is-equal (find-lxml-el *lxml-1* :|e|)
+    (is-equal (mvn-pd::find-lxml-el *lxml-1* :|e|)
               '(:|e|))
     
-    (is-equal (find-lxml-el *lxml-1* :|atr|)
+    (is-equal (mvn-pd::find-lxml-el *lxml-1* :|atr|)
               nil)
 
-    (is-equal (find-lxml-el *lxml-2* :|artifactId| :max-nest 1)
+    (is-equal (mvn-pd::find-lxml-el *lxml-2* :|artifactId| :max-nest 1)
               '((:|artifactId| "ArtifactId")) ))
 
 
@@ -300,25 +298,25 @@
 
 (test find-nested-el-test
 
-  (is-equal (find-nested-el nil '(:|b| :|c|))
+  (is-equal (mvn-pd::find-nested-el nil '(:|b| :|c|))
             nil)
 
-  (is-equal (find-nested-el *lxml-1* nil)
+  (is-equal (mvn-pd::find-nested-el *lxml-1* nil)
             nil)
 
-  (is-equal (find-nested-el '(:|b| (:|c| :|d|) :|e|) '(:|b| :|c|))
+  (is-equal (mvn-pd::find-nested-el '(:|b| (:|c| :|d|) :|e|) '(:|b| :|c|))
             '((:|c| :|d|)) )
 
-  (is-equal (find-nested-el *lxml-1* '(:|d| :|c|))
+  (is-equal (mvn-pd::find-nested-el *lxml-1* '(:|d| :|c|))
             '(((:|c| :|atr| "c") "text-c" :|e|)) )
   
-  (is-equal (find-nested-el *lxml-1* '(:|r| :|d| :|c|))
+  (is-equal (mvn-pd::find-nested-el *lxml-1* '(:|r| :|d| :|c|))
             '(((:|c| :|atr| "c") "text-c" :|e|)) )
   
-  (is-equal (find-nested-el *lxml-1* '(:|r| :|c|))
+  (is-equal (mvn-pd::find-nested-el *lxml-1* '(:|r| :|c|))
             '((:|c| "example" :|f|)))
 
-  (is-equal (find-nested-el *lxml-2* '(:|project| :|artifactId|))
+  (is-equal (mvn-pd::find-nested-el *lxml-2* '(:|project| :|artifactId|))
             '((:|artifactId| "ArtifactId"))) )
 	
 
@@ -333,9 +331,9 @@
     (is-true (input-stream-p sis))
     ;; (print lxml)
     (is-equal '((:|name| "Maven Pom Example 2") (:|name| "Maven Pom Example"))
-              (find-lxml-el lxml :|name|))
+              (mvn-pd::find-lxml-el lxml :|name|))
     (is-equal nil
-              (find-lxml-el lxml :|Name|))))
+              (mvn-pd::find-lxml-el lxml :|Name|))))
 
 
 (test module-name-test
@@ -579,8 +577,8 @@
             (write-variable-content-to-file m))
           modules)
     ;; when
-    (mvn-pd::project-dependencies-dot '("pom-parent" "pom-module-a"
-                                                    "pom-module-b" "pom-module-c"))
+    (mvn-pd:project-dependencies-dot '("pom-parent" "pom-module-a"
+                                       "pom-module-b" "pom-module-c"))
     ;; then
     (is-equal-stripped
      (read-file-to-string "mvn-pd-output")
@@ -592,12 +590,4 @@
           ModuleC;
      }")))
 
-
-       ;; TODO graphviz dot file
-       ;; digraph
-       ;; http://www.graphviz.org/content/dot-language
-       ;; http://graphs.grevian.org/example
-  
-
-;; (directory "~/Downloads/pomy_all/pomy_modules/*.xml")
-
+;; TODO logs created integrations test

@@ -4,8 +4,40 @@
 
 ;;; constants
 
-(defconstant +PROJ-NAME-DEFAULT+ "Project")
-(defconstant +LOG-FILE+ "mvn-pd.log")
+(defparameter +PROJ-NAME-DEFAULT+ "Project")
+(defparameter +LOG-FILE+ "mvn-pd.log")
+
+;;; logger
+(defun log-to-file (message)
+  (with-open-file (stream +LOG-FILE+
+                          :direction :output
+                          :if-does-not-exist :create
+                          :if-exists :append)
+    (format stream message)))
+
+
+(defun log-info (message &rest values)
+  (let ((msg (apply #'format nil (concatenate 'string message "~&") values)))
+    (log-to-file msg)
+    (format t msg)))
+  ;; TODO append ~& to values - to make new line
+
+  ;; TODO append timestamp and log level
+;; (multiple-value-bind
+;; 	(second minute hour date month year day-of-week dst-p tz)
+;; 	(get-decoded-time)
+;;     (format t "~2,'0d:~2,'0d:~2,'0d ~a, ~d/~2,'0d/~d (GMT~@d)"
+;; 	      hour
+;; 	      minute
+;; 	      second
+;; 	      (nth day-of-week '("Mon" "Tue" "Wed" "Thu" "Fri" "Sat" "Sun"))
+;; 	      month
+;; 	      date
+;; 	      year
+;; 	      (- tz)))
+
+;; (get-internal-real-time)
+
 
 ;;; functions
 
@@ -212,33 +244,27 @@
 ;; read more: https://common-lisp.net/project/s-xml/S-XML.html
 ;; dependency-list should be list of strings or filenames
 (defun read-dependencies (dependendecy-list parse-xml-fun)
-  (let* ((lxml-list (mapcar 
-                     (lambda (d)
+  (let* ((lxml-list 
+          (mapcar 
+           (lambda (d)
+             (log-info "Reading file \"~a\" " d)
+             (funcall parse-xml-fun d))
+           dependendecy-list))
 
-                       ;; TODO log parsed files
-                       ;; +LOG-FILE+
-
-;; log to stderr and a file (see note about buffering in "Gotchas" below)
-;; (a-cl-logger:define-logger filelog ()
-;;   :appenders (make-instance 'a-cl-logger:file-log-appender
-;;                 :log-file "test.log" :buffer-p nil))
-
-                       (funcall parse-xml-fun d)) 
-                     dependendecy-list))
          ;; there is possibility that there is no parent
-         (parent-lxml (find-if 
-
-                       ;; TODO log parent module
-
-                       #'parent-module? 
-                       lxml-list))
-         (module-lxml-list (mapcan 
-                            (lambda (d) 
-
-                       ;; TODO log child module(s)
-
-                              (and (child-module? d) (list d) ))
-                            lxml-list)))
+         (parent-lxml 
+          (let ((parent-mod (find-if #'parent-module? lxml-list)))
+            (when parent-mod
+              (log-info "Reading parent module \"~a\" " (module-name parent-mod)))
+            parent-mod))
+         (module-lxml-list 
+          (mapcan 
+           (lambda (d) 
+             (let ((valid-module (and (child-module? d) (list d) )))
+               (when valid-module
+                 (log-info "Reading module \"~a\" " (module-name d)))
+               valid-module))
+           lxml-list)))
     (and module-lxml-list
          (cons parent-lxml module-lxml-list))))
 

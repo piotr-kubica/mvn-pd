@@ -567,6 +567,10 @@
      }"))
 
 (test project-dependencies-dot-integration-test
+  ;; TODO logs created integrations test
+  ;; truncate log file before writing
+  ;; truncate -s 0 mvn-pd.log
+
   ;; test setup - write modules to sparate files
   ;; given
   (let ((modules `(*pom-parent* 
@@ -590,4 +594,3 @@
           ModuleC;
      }")))
 
-;; TODO logs created integrations test

@@ -153,8 +153,10 @@ run
 ```
     (mvn-pd:project-dependencies-dot '("pom-parent" "pom-module-a"
                                        "pom-module-b" "pom-module-c"))
-                                       ```
-                                       to get output:
+				       
+```
+				       
+to get output:
 
 _mvn-pd-output_
 ```

@@ -1,0 +1,7 @@
+digraph { 
+     label="parent-artifact";
+     ModuleA -> ModuleB;
+     ModuleA -> ModuleC;
+     ModuleB -> ModuleC;
+     ModuleC;
+}

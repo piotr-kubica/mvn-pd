@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <project xmlns="http://maven.apache.org/POM/4.0.0">
+      <modelVersion atr="a" btr="b">4.0.0</modelVersion>
+      <groupId>com.example</groupId>
+      <artifactId>ModuleC</artifactId>
+      <version>0.1</version>
+      <name>Maven Pom Example</name>
+      <parent>
+        <groupId>com.example</groupId>
+        <artifactId>parent-artifact</artifactId>
+        <version>0.1</version>
+        <relativePath>../Parent</relativePath> 
+      </parent>
+    </project>

@@ -1,0 +1,12 @@
+[6961797] 2017.09.11(GMT+1) 23:55:20  INFO:  *** Starting mvn-pd ***
+[6961798] 2017.09.11(GMT+1) 23:55:20  INFO:  Reading file "pom-parent" 
+[6961798] 2017.09.11(GMT+1) 23:55:20  INFO:  Reading file "pom-module-a" 
+[6961798] 2017.09.11(GMT+1) 23:55:20  INFO:  Reading file "pom-module-b" 
+[6961799] 2017.09.11(GMT+1) 23:55:20  INFO:  Reading file "pom-module-c" 
+[6961799] 2017.09.11(GMT+1) 23:55:20  INFO:  Reading parent module "parent-artifact" 
+[6961799] 2017.09.11(GMT+1) 23:55:20  INFO:  Reading module "ModuleA" 
+[6961799] 2017.09.11(GMT+1) 23:55:20  INFO:  Reading module "ModuleB" 
+[6961799] 2017.09.11(GMT+1) 23:55:20  INFO:  Reading module "ModuleC" 
+[6961799] 2017.09.11(GMT+1) 23:55:20  INFO:  Reading completed. Files: 4, Modules: 3, Parent-modules: 1. 
+[6961799] 2017.09.11(GMT+1) 23:55:20  INFO:  Writing dependencies to output file: "mvn-pd-output"
+[6961799] 2017.09.11(GMT+1) 23:55:20  INFO:  *** mvn-pd finished ***

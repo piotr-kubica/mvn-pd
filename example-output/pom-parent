@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+     <project xmlns="http://maven.apache.org/POM/4.0.0">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.example</groupId>
+	<artifactId>parent-artifact</artifactId>
+	<packaging>pom</packaging>
+	<version>0.1</version>
+	<prerequisites>
+		<maven>3.2.1</maven>
+	</prerequisites>
+	<modules>
+	  <module>../ModuleA</module>
+   	  <module>../ModuleB</module>
+	  <module></module>
+	</modules>
+	<dependencies>
+	  <dependency>
+	  <groupId>junit</groupId>
+	  <artifactId>junit</artifactId>
+	  <scope>test</scope>
+	  </dependency>
+	</dependencies>
+     </project>

@@ -5,39 +5,30 @@
 ;;; constants
 
 (defparameter +PROJ-NAME-DEFAULT+ "Project")
-(defparameter +LOG-FILE+ "mvn-pd.log")
 
 ;;; logger
-(defun log-to-file (message)
-  (with-open-file (stream +LOG-FILE+
-                          :direction :output
-                          :if-does-not-exist :create
-                          :if-exists :append)
-    (format stream message)))
-
 
 (defun log-info (message &rest values)
-  (let ((msg (apply #'format nil (concatenate 'string message "~&") values)))
-    (log-to-file msg)
-    (format t msg)))
-  ;; TODO append ~& to values - to make new line
-
-  ;; TODO append timestamp and log level
-;; (multiple-value-bind
-;; 	(second minute hour date month year day-of-week dst-p tz)
-;; 	(get-decoded-time)
-;;     (format t "~2,'0d:~2,'0d:~2,'0d ~a, ~d/~2,'0d/~d (GMT~@d)"
-;; 	      hour
-;; 	      minute
-;; 	      second
-;; 	      (nth day-of-week '("Mon" "Tue" "Wed" "Thu" "Fri" "Sat" "Sun"))
-;; 	      month
-;; 	      date
-;; 	      year
-;; 	      (- tz)))
-
-;; (get-internal-real-time)
-
+  (labels ((timestamp ()
+             (multiple-value-bind
+                   (second minute hour date month year day-of-week dst-p tz)
+                 (get-decoded-time)
+               (format nil "[~d] ~d.~2,'0d.~2,'0d(GMT~@d) ~2,'0d:~2,'0d:~2,'0d " 
+                       (get-internal-real-time)
+                       year month date (- tz)
+                       hour minute second))))
+    (let ((msg 
+           (apply 
+            #'format nil 
+            (concatenate 'string (timestamp) " INFO:  " message "~&") values)))
+      (with-open-file 
+          ;; log file name
+          (stream "mvn-pd.log"
+                  :direction :output
+                  :if-does-not-exist :create
+                  :if-exists :append)
+        (format stream msg))
+      (format *standard-output* msg))))
 
 ;;; functions
 

@@ -2,12 +2,6 @@
 
 The goal of this project is to help visualize Maven project module dependencies by creating _dot_ file from _pom_ files which speficy a modular project in the Maven build tool. Based on the _dot_ file you will be able to create a visual representation of the dependecy graph of your project by creating an image of graph with the help of _graphviz_.
 
-### Preparing pom files
-
-To create a dot file you will need your pom files (parent pom and module pom's) to be processed.
-The find-copy-rename-pom.sh will help you gather all pom files in one directory.
-https://github.com/piotr-kubica/mvn-pd/blob/master/find-copy-rename/find-copy-rename-pom.sh
-
 ### Installation
 
 1. Checkout repository (ex. ~/mvn-pd/)
@@ -16,6 +10,12 @@ https://github.com/piotr-kubica/mvn-pd/blob/master/find-copy-rename/find-copy-re
     * **sbcl**, a Common Lisp compiler (includes _asdf_ by default)
     * **quicklisp**, a library manager for Common Lisp
     * **graphviz** (optional), tool for creating a visual representation (.png, .jpg, etc.) of the dependency graph
+
+### Preparing pom files
+
+To create a dot file you will need your pom files (parent pom and module pom's) to be processed.
+The find-copy-rename-pom.sh will help you gather all pom files in one directory.
+https://github.com/piotr-kubica/mvn-pd/blob/master/find-copy-rename/find-copy-rename-pom.sh
 
 ### Run mvn-pd
 

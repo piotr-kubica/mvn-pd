@@ -8,7 +8,7 @@ To create a dot file you will need your pom files (parent pom and module pom's) 
 The find-copy-rename-pom.sh will help you gather all pom files in one directory.
 https://github.com/piotr-kubica/mvn-pd/blob/master/find-copy-rename/find-copy-rename-pom.sh
 
-### mvn-pd installation
+### Installation
 
 1. Checkout repository (ex. ~/mvn-pd/)
 
@@ -151,9 +151,8 @@ _pom-parent_
 
 run
 ```lisp
-    (mvn-pd:project-dependencies-dot '("pom-parent" "pom-module-a"
-                                       "pom-module-b" "pom-module-c"))
-				       
+(mvn-pd:project-dependencies-dot '("pom-parent" "pom-module-a"
+                                   "pom-module-b" "pom-module-c"))				       
 ```
 				       
 to get output:

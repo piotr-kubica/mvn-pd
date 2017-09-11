@@ -174,7 +174,7 @@ by running command
 dot -Tpng mvn-pd-output -o graph.png
 
 ```
-
+![graph.png](https://github.com/piotr-kubica/mvn-pd/blob/master/example-output/graph.png)
 
 _mvn-pd.log_
 ```

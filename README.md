@@ -33,7 +33,152 @@ sbcl \
      --eval '(progn (push #p"~/mvn-pd/" asdf:*central-registry*) (ql:quickload "mvn-pd") )' \
      --eval '(mvn-pd::project-dependencies-dot (directory "~/example-pom/*"))'
 ```
+> **NOTE**: It this does't work. Run commands interactively from sbcl REPL.
 
 ### Example
 
-- [ ] TODO step by step example (with example pom's included)
+Given example pom modules: 
+
+_pom-module-a_
+```
+<?xml version="1.0" encoding="UTF-8"?>
+    <project xmlns="http://maven.apache.org/POM/4.0.0">
+      <modelVersion atr="a" btr="b">4.0.0</modelVersion>
+      <groupId>com.example</groupId>
+      <artifactId>ModuleA</artifactId>
+      <version>0.1</version>
+      <name>Maven Pom Example</name>
+      <parent>
+        <groupId>com.example</groupId>
+        <artifactId>parent-artifact</artifactId>
+        <version>0.1</version>
+        <relativePath>../Parent</relativePath> 
+      </parent>
+      <dependencies>
+        <dependency>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+          <version>4.8</version>
+          <scope>test</scope>
+        </dependency>
+        <dependency>
+          <groupId>com.example</groupId>
+          <artifactId>ModuleB</artifactId>
+          <version>0.1</version>
+        </dependency>
+        <dependency>
+          <groupId>com.example</groupId>
+          <artifactId>ModuleC</artifactId>
+          <version>0.1</version>
+        </dependency>
+      </dependencies>
+      </project>
+```
+
+_pom-module-b_
+```<?xml version="1.0" encoding="UTF-8"?>
+    <project xmlns="http://maven.apache.org/POM/4.0.0">
+      <modelVersion atr="a" btr="b">4.0.0</modelVersion>
+      <groupId>com.example</groupId>
+      <artifactId>ModuleB</artifactId>
+      <version>0.1</version>
+      <name>Maven Pom Example</name>
+      <parent>
+        <groupId>com.example</groupId>
+        <artifactId>parent-artifact</artifactId>
+        <version>0.1</version>
+        <relativePath>../Parent</relativePath> 
+      </parent>
+      <dependencies>
+        <dependency>
+          <groupId>com.example</groupId>
+          <artifactId>ModuleC</artifactId>
+          <version>0.1</version>
+        </dependency>
+      </dependencies>
+    </project>
+
+```
+
+
+_pom-module-c_
+```<?xml version="1.0" encoding="UTF-8"?>
+    <project xmlns="http://maven.apache.org/POM/4.0.0">
+      <modelVersion atr="a" btr="b">4.0.0</modelVersion>
+      <groupId>com.example</groupId>
+      <artifactId>ModuleC</artifactId>
+      <version>0.1</version>
+      <name>Maven Pom Example</name>
+      <parent>
+        <groupId>com.example</groupId>
+        <artifactId>parent-artifact</artifactId>
+        <version>0.1</version>
+        <relativePath>../Parent</relativePath> 
+      </parent>
+    </project>
+
+```
+
+
+_pom-parent_
+(Note that _ModuleC_ is not present)
+```
+<?xml version="1.0" encoding="UTF-8"?>
+  <project xmlns="http://maven.apache.org/POM/4.0.0">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.example</groupId>
+	<artifactId>parent-artifact</artifactId>
+	<packaging>pom</packaging>
+	<version>0.1</version>
+	<prerequisites>
+		<maven>3.2.1</maven>
+	</prerequisites>
+	<modules>
+	  <module>../ModuleA</module>
+     <module>../ModuleB</module>
+	  <module></module>
+	</modules>
+	<dependencies>
+	  <dependency>
+	  <groupId>junit</groupId>
+	  <artifactId>junit</artifactId>
+	  <scope>test</scope>
+	  </dependency>
+	</dependencies>
+  </project>
+     
+```
+
+run
+```
+    (mvn-pd:project-dependencies-dot '("pom-parent" "pom-module-a"
+                                       "pom-module-b" "pom-module-c"))
+                                       ```
+                                       to get output:
+
+_mvn-pd-output_
+```
+digraph { 
+     label="parent-artifact";
+     ModuleA -> ModuleB;
+     ModuleA -> ModuleC;
+     ModuleB -> ModuleC;
+     ModuleC;
+}
+```
+
+_mvn-pd.log_
+```
+[6961797] 2017.09.11(GMT+1) 23:55:20  INFO:  *** Starting mvn-pd ***
+[6961798] 2017.09.11(GMT+1) 23:55:20  INFO:  Reading file "pom-parent" 
+[6961798] 2017.09.11(GMT+1) 23:55:20  INFO:  Reading file "pom-module-a" 
+[6961798] 2017.09.11(GMT+1) 23:55:20  INFO:  Reading file "pom-module-b" 
+[6961799] 2017.09.11(GMT+1) 23:55:20  INFO:  Reading file "pom-module-c" 
+[6961799] 2017.09.11(GMT+1) 23:55:20  INFO:  Reading parent module "parent-artifact" 
+[6961799] 2017.09.11(GMT+1) 23:55:20  INFO:  Reading module "ModuleA" 
+[6961799] 2017.09.11(GMT+1) 23:55:20  INFO:  Reading module "ModuleB" 
+[6961799] 2017.09.11(GMT+1) 23:55:20  INFO:  Reading module "ModuleC" 
+[6961799] 2017.09.11(GMT+1) 23:55:20  INFO:  Reading completed. Files: 4, Modules: 3, Parent-modules: 1. 
+[6961799] 2017.09.11(GMT+1) 23:55:20  INFO:  Writing dependencies to output file: "mvn-pd-output"
+[6961799] 2017.09.11(GMT+1) 23:55:20  INFO:  *** mvn-pd finished ***
+```

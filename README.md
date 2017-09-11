@@ -168,7 +168,7 @@ digraph {
      ModuleC;
 }
 ```
-which you can visualize with graphviz
+which you can turn into a _png_ image with graphviz
 by running command
 ```
 dot -Tpng mvn-pd-output -o graph.png

@@ -150,7 +150,7 @@ _pom-parent_
 ```
 
 run
-```
+```lisp
     (mvn-pd:project-dependencies-dot '("pom-parent" "pom-module-a"
                                        "pom-module-b" "pom-module-c"))
 				       
@@ -168,6 +168,13 @@ digraph {
      ModuleC;
 }
 ```
+which you can visualize with graphviz
+by running command
+```
+dot -Tpng mvn-pd-output -o graph.png
+
+```
+
 
 _mvn-pd.log_
 ```

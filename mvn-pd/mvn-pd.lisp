@@ -2,10 +2,6 @@
 
 (in-package :mvn-pd)
 
-;;; constants
-
-(defparameter +PROJ-NAME-DEFAULT+ "Project")
-
 ;;; logger
 
 (defun log-info (message &rest values)
@@ -231,44 +227,58 @@
 ;; or 
 ;; s-xml:parse-xml-string
 ;; (future rspec validation?)
-;; 
+;;
 ;; read more: https://common-lisp.net/project/s-xml/S-XML.html
+;;
 ;; dependency-list should be list of strings or filenames
 (defun read-dependencies (dependendecy-list parse-xml-fun)
-  (let* ((lxml-list 
+  (let* ((summary (list :files 0 :modules 0 :parent 0))
+         (lxml-list 
           (mapcar 
            (lambda (d)
+             (incf (getf summary :files))
              (log-info "Reading file \"~a\" " d)
              (funcall parse-xml-fun d))
            dependendecy-list))
 
          ;; there is possibility that there is no parent
          (parent-lxml 
-          (let ((parent-mod (find-if #'parent-module? lxml-list)))
-            (when parent-mod
-              (log-info "Reading parent module \"~a\" " (module-name parent-mod)))
-            parent-mod))
+          (let ((parent-module (find-if #'parent-module? lxml-list)))
+            (when parent-module
+              (log-info "Reading parent module \"~a\" " 
+                        (module-name parent-module))
+              (incf (getf summary :parent)))
+            parent-module))
          (module-lxml-list 
           (mapcan 
            (lambda (d) 
              (let ((valid-module (and (child-module? d) (list d) )))
                (when valid-module
-                 (log-info "Reading module \"~a\" " (module-name d)))
+                 (log-info "Reading module \"~a\" " (module-name d))
+                 (incf (getf summary :modules)))
                valid-module))
            lxml-list)))
+    ;; apply - because of list argument
+    (apply #'log-info "Reading completed. Files: ~d, Modules: ~d, Parent-modules: ~d. "
+           (remove-if #'symbolp summary))
     (and module-lxml-list
          (cons parent-lxml module-lxml-list))))
 
 
 (defun project-dependencies (dependendecy-list parse-xml-fun)
-  (let ((lxml-par-and-mods (read-dependencies dependendecy-list parse-xml-fun)))
-    (when lxml-par-and-mods
-      ;; setting parent name to default if not present
-      (let ((par-name (module-name (car lxml-par-and-mods) +PROJ-NAME-DEFAULT+))
+  (let ((lxml-parent-and-modules 
+         (read-dependencies dependendecy-list parse-xml-fun)))
+    (when lxml-parent-and-modules
+      (let* ((default-parent-module-name "Project")
+            (parent-module-name 
+             ;; setting parent name to default if not present
+             (module-name 
+              (car lxml-parent-and-modules)
+              default-parent-module-name))
             (deps (mapcan 
                    (lambda (d) (list (module-dependency-list d)))
-                   (cdr  lxml-par-and-mods))))
-        (cons par-name deps)))))
+                   (cdr  lxml-parent-and-modules))))
+        (cons parent-module-name deps)))))
 
 
 (defun project-module-dependencies (dependendecy-list parse-xml-fun)
@@ -303,14 +313,18 @@
 
 
 (defun project-dependencies-dot (pom-file-list)
+  (log-info "*** Starting mvn-pd ***")
   (let* ((output-filename "mvn-pd-output")
          (dependencies (project-module-dependencies 
                         pom-file-list 
                         #'s-xml:parse-xml-file))
          (dependencies-dot (to-dot-format dependencies)))
+    ;; TODO Writing to output file "mvn-pd-output"
+    (log-info "Writing dependencies to output file: \"~a\"" output-filename)
     (with-open-file (stream output-filename
                             :direction :output
                             :if-does-not-exist :create
                             :if-exists :supersede)
-      (format stream dependencies-dot))))
+      (format stream dependencies-dot)))
+  (log-info "*** mvn-pd finished ***"))
 

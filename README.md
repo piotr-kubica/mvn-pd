@@ -31,7 +31,7 @@ sbcl \
      --no-userinit --no-sysinit --non-interactive \
      --load ~/quicklisp/setup.lisp \
      --eval '(progn (push #p"~/mvn-pd/" asdf:*central-registry*) (ql:quickload "mvn-pd") )' \
-     --eval '(mvn-pd::project-dependencies-dot (directory "~/example-pom/*"))'
+     --eval '(mvn-pd:project-dependencies-dot (directory "~/example-pom/*"))'
 ```
 > **NOTE**: It this does't work. Run commands interactively from sbcl REPL.
 
@@ -149,7 +149,7 @@ _pom-parent_
      
 ```
 
-run
+run (from sbcl REPL)
 ```lisp
 (mvn-pd:project-dependencies-dot '("pom-parent" "pom-module-a"
                                    "pom-module-b" "pom-module-c"))				       

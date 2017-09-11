@@ -319,7 +319,6 @@
                         pom-file-list 
                         #'s-xml:parse-xml-file))
          (dependencies-dot (to-dot-format dependencies)))
-    ;; TODO Writing to output file "mvn-pd-output"
     (log-info "Writing dependencies to output file: \"~a\"" output-filename)
     (with-open-file (stream output-filename
                             :direction :output

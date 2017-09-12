@@ -35,9 +35,8 @@ sbcl \
 ```
 > **NOTE**: It this does't work. Run commands interactively from sbcl REPL.
 
-You should see following output:
-```
-[pio@fcenvy mvn-pd]$ sbcl \
+You should see following or similar output:
+```[pio@fcenvy example-pom]$ sbcl \
 >      --no-userinit --no-sysinit --non-interactive \
 >      --load ~/quicklisp/setup.lisp \
 >      --eval '(progn (push #p"~/mvn-pd/mvn-pd/" asdf:*central-registry*) (ql:quickload "mvn-pd") )' \
@@ -53,15 +52,17 @@ To load "mvn-pd":
   Load 1 ASDF system:
     mvn-pd
 ; Loading "mvn-pd"
-[package mvn-pd]..
-[559] 2017.09.12(GMT+1) 20:22:17  INFO:  *** Starting mvn-pd ***
-[560] 2017.09.12(GMT+1) 20:22:17  INFO:  Reading file "/home/pio/example-pom/pom-module-a" 
-[574] 2017.09.12(GMT+1) 20:22:17  INFO:  Reading file "/home/pio/example-pom/pom-module-b" 
-[574] 2017.09.12(GMT+1) 20:22:17  INFO:  Reading file "/home/pio/example-pom/pom-module-c" 
-[574] 2017.09.12(GMT+1) 20:22:17  INFO:  Reading file "/home/pio/example-pom/pom-parent" 
-[575] 2017.09.12(GMT+1) 20:22:17  INFO:  Reading completed. Files: 4, Modules: 0, Parent-modules: 0. 
-[575] 2017.09.12(GMT+1) 20:22:17  INFO:  Writing dependencies to output file: "mvn-pd-output"
-[575] 2017.09.12(GMT+1) 20:22:17  INFO:  *** mvn-pd finished ***
+
+[482] 2017.09.12(GMT+1) 20:28:14  INFO:  *** Starting mvn-pd ***
+[482] 2017.09.12(GMT+1) 20:28:14  INFO:  Reading file "/home/pio/example-pom/pom-module-a" 
+[497] 2017.09.12(GMT+1) 20:28:14  INFO:  Reading file "/home/pio/example-pom/pom-module-b" 
+[498] 2017.09.12(GMT+1) 20:28:14  INFO:  Reading file "/home/pio/example-pom/pom-module-c" 
+[498] 2017.09.12(GMT+1) 20:28:14  INFO:  Reading file "/home/pio/example-pom/pom-parent" 
+[498] 2017.09.12(GMT+1) 20:28:14  INFO:  Reading completed. Files: 4, Modules: 0, Parent-modules: 0. 
+[498] 2017.09.12(GMT+1) 20:28:14  INFO:  Writing dependencies to output file: "mvn-pd-output"
+[498] 2017.09.12(GMT+1) 20:28:14  INFO:  *** mvn-pd finished ***
+[pio@fcenvy example-pom]$ ls
+mvn-pd.log  mvn-pd-output  pom-module-a  pom-module-b  pom-module-c  pom-parent
 
 ```
 

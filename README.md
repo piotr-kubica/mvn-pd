@@ -30,10 +30,41 @@ run command from bash
 sbcl \
      --no-userinit --no-sysinit --non-interactive \
      --load ~/quicklisp/setup.lisp \
-     --eval '(progn (push #p"~/mvn-pd/" asdf:*central-registry*) (ql:quickload "mvn-pd") )' \
+     --eval '(progn (push #p"~/mvn-pd/mvn-pd/" asdf:*central-registry*) (ql:quickload "mvn-pd") )' \
      --eval '(mvn-pd:project-dependencies-dot (directory "~/example-pom/*"))'
 ```
 > **NOTE**: It this does't work. Run commands interactively from sbcl REPL.
+
+You should see following output:
+```
+[pio@fcenvy mvn-pd]$ sbcl \
+>      --no-userinit --no-sysinit --non-interactive \
+>      --load ~/quicklisp/setup.lisp \
+>      --eval '(progn (push #p"~/mvn-pd/mvn-pd/" asdf:*central-registry*) (ql:quickload "mvn-pd") )' \
+>      --eval '(mvn-pd:project-dependencies-dot (directory "~/example-pom/*"))'
+This is SBCL 1.3.16, an implementation of ANSI Common Lisp.
+More information about SBCL is available at <http://www.sbcl.org/>.
+
+SBCL is free software, provided as is, with absolutely no warranty.
+It is mostly in the public domain; some portions are provided under
+BSD-style licenses.  See the CREDITS and COPYING files in the
+distribution for more information.
+To load "mvn-pd":
+  Load 1 ASDF system:
+    mvn-pd
+; Loading "mvn-pd"
+[package mvn-pd]..
+[559] 2017.09.12(GMT+1) 20:22:17  INFO:  *** Starting mvn-pd ***
+[560] 2017.09.12(GMT+1) 20:22:17  INFO:  Reading file "/home/pio/example-pom/pom-module-a" 
+[574] 2017.09.12(GMT+1) 20:22:17  INFO:  Reading file "/home/pio/example-pom/pom-module-b" 
+[574] 2017.09.12(GMT+1) 20:22:17  INFO:  Reading file "/home/pio/example-pom/pom-module-c" 
+[574] 2017.09.12(GMT+1) 20:22:17  INFO:  Reading file "/home/pio/example-pom/pom-parent" 
+[575] 2017.09.12(GMT+1) 20:22:17  INFO:  Reading completed. Files: 4, Modules: 0, Parent-modules: 0. 
+[575] 2017.09.12(GMT+1) 20:22:17  INFO:  Writing dependencies to output file: "mvn-pd-output"
+[575] 2017.09.12(GMT+1) 20:22:17  INFO:  *** mvn-pd finished ***
+
+```
+
 
 ### Example
 

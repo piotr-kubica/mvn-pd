@@ -72,7 +72,7 @@ mvn-pd.log  mvn-pd-output  pom-module-a  pom-module-b  pom-module-c  pom-parent
 
 Given example pom modules: 
 
-_pom-module-a_ (contains dependencies to ModuleA and ModuleB)
+**_pom-module-a_** (contains dependencies to ModuleA and ModuleB)
 
 ```
 <?xml version="1.0" encoding="UTF-8"?>
@@ -109,7 +109,7 @@ _pom-module-a_ (contains dependencies to ModuleA and ModuleB)
       </project>
 ```
 
-_pom-module-b_ (contains dependencies to ModuleC)
+**_pom-module-b_** (contains dependencies to ModuleC)
 
 ```<?xml version="1.0" encoding="UTF-8"?>
     <project xmlns="http://maven.apache.org/POM/4.0.0">
@@ -136,7 +136,7 @@ _pom-module-b_ (contains dependencies to ModuleC)
 ```
 
 
-_pom-module-c_ (contains no dependencies to other modules)
+**_pom-module-c_** (contains no dependencies to other modules)
 
 ```<?xml version="1.0" encoding="UTF-8"?>
     <project xmlns="http://maven.apache.org/POM/4.0.0">
@@ -156,7 +156,7 @@ _pom-module-c_ (contains no dependencies to other modules)
 ```
 
 
-_pom-parent_ (note that _ModuleC_ is not present among <module> elements)
+**_pom-parent_** (note that _ModuleC_ is not present among &lt;module&gt; elements)
 ```
 <?xml version="1.0" encoding="UTF-8"?>
   <project xmlns="http://maven.apache.org/POM/4.0.0">
@@ -170,7 +170,7 @@ _pom-parent_ (note that _ModuleC_ is not present among <module> elements)
 	</prerequisites>
 	<modules>
 	  <module>../ModuleA</module>
-     <module>../ModuleB</module>
+          <module>../ModuleB</module>
 	  <module></module>
 	</modules>
 	<dependencies>

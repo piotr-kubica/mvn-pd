@@ -72,7 +72,8 @@ mvn-pd.log  mvn-pd-output  pom-module-a  pom-module-b  pom-module-c  pom-parent
 
 Given example pom modules: 
 
-_pom-module-a_
+_pom-module-a_ (contains dependencies to ModuleA and ModuleB)
+
 ```
 <?xml version="1.0" encoding="UTF-8"?>
     <project xmlns="http://maven.apache.org/POM/4.0.0">
@@ -108,7 +109,8 @@ _pom-module-a_
       </project>
 ```
 
-_pom-module-b_
+_pom-module-b_ (contains dependencies to ModuleC)
+
 ```<?xml version="1.0" encoding="UTF-8"?>
     <project xmlns="http://maven.apache.org/POM/4.0.0">
       <modelVersion atr="a" btr="b">4.0.0</modelVersion>
@@ -134,7 +136,8 @@ _pom-module-b_
 ```
 
 
-_pom-module-c_
+_pom-module-c_ (contains no dependencies to other modules)
+
 ```<?xml version="1.0" encoding="UTF-8"?>
     <project xmlns="http://maven.apache.org/POM/4.0.0">
       <modelVersion atr="a" btr="b">4.0.0</modelVersion>
@@ -153,8 +156,7 @@ _pom-module-c_
 ```
 
 
-_pom-parent_
-(Note that _ModuleC_ is not present)
+_pom-parent_ (note that _ModuleC_ is not present among <module> elements)
 ```
 <?xml version="1.0" encoding="UTF-8"?>
   <project xmlns="http://maven.apache.org/POM/4.0.0">

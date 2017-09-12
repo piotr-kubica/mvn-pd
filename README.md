@@ -36,7 +36,8 @@ sbcl \
 > **NOTE**: It this does't work. Run commands interactively from sbcl REPL.
 
 You should see following or similar output:
-```[pio@fcenvy example-pom]$ sbcl \
+```
+[pio@fcenvy example-pom]$ sbcl \
 >      --no-userinit --no-sysinit --non-interactive \
 >      --load ~/quicklisp/setup.lisp \
 >      --eval '(progn (push #p"~/mvn-pd/mvn-pd/" asdf:*central-registry*) (ql:quickload "mvn-pd") )' \
